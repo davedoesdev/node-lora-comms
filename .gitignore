@@ -1,0 +1,4 @@
+/node_modules
+/build
+/lora_gateway_shared*
+/packet_forwarder_shared*
