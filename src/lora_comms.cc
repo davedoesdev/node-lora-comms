@@ -12,7 +12,7 @@ public:
 
     static Napi::Object Initialize(Napi::Env env, Napi::Object exports);
 
-    void Start(const Napi::CallbackInfo& info);
+    static void Start(const Napi::CallbackInfo& info);
 };
 
 LoRaComms::LoRaComms(const Napi::CallbackInfo& info) :
@@ -54,7 +54,7 @@ Napi::Object LoRaComms::Initialize(Napi::Env env, Napi::Object exports)
 {
     exports.Set("LoRaComms", DefineClass(env, "LoRaComms",
     {
-        InstanceMethod("start", &LoRaComms::Start)
+        StaticMethod("start", &LoRaComms::Start)
     }));
 
     return exports;
