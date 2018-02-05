@@ -1,10 +1,6 @@
 #include <napi.h>
 #include <lora_comms.h>
 
-// call start on worker thread, callback when stopped
-// map that to event in js land?
-// then add the other methods
-
 class LoRaComms : public Napi::ObjectWrap<LoRaComms>
 {
 public:
@@ -227,12 +223,14 @@ void LoRaComms::SetGWRecvTimeout(const Napi::CallbackInfo& info)
     set_gw_recv_timeout(info[0].As<Napi::Number>(), &tv);
 }
 
+typedef std::conditional<sizeof(time_t) == 8, int64_t, int32_t>::type tm_t;
+
 struct timeval LoRaComms::TimeVal(const Napi::CallbackInfo& info,
                                   const uint32_t arg)
 {
     struct timeval tv;
-    tv.tv_sec = info[arg].As<Napi::Number>();
-    tv.tv_usec = info[arg+1].As<Napi::Number>();
+    tv.tv_sec = static_cast<tm_t>(info[arg].As<Napi::Number>());
+    tv.tv_usec = static_cast<tm_t>(info[arg+1].As<Napi::Number>());
     return tv;
 }
 
