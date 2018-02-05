@@ -33,6 +33,17 @@ LoRaComms::LoRaComms(const Napi::CallbackInfo& info) :
 {
 }
 
+Napi::Error ErrnoError(const Napi::Env& env, const int errnum)
+{
+    char buf[1024] = {0};
+    auto errmsg = strerror_r(errnum, buf, sizeof(buf));
+    static_assert(std::is_same<decltype(errmsg), char*>::value,
+                  "strerror_r must return char*");
+    Napi::Error err = Napi::Error::New(env, errmsg ? errmsg : std::to_string(errnum));
+    err.Set("errno", Napi::Number::New(env, errnum));
+    return err;
+}
+
 class StartAsyncWorker : public Napi::AsyncWorker
 {
 public:
@@ -55,17 +66,6 @@ protected:
 private:
     std::string cfg_dir;
 };
-
-Napi::Error ErrnoError(const Napi::Env& env, const int errnum)
-{
-    char buf[1024] = {0};
-    auto errmsg = strerror_r(errnum, buf, sizeof(buf));
-    static_assert(std::is_same<decltype(errmsg), char*>::value,
-                  "strerror_r must return char*");
-    Napi::Error err = Napi::Error::New(env, errmsg ? errmsg : std::to_string(errnum));
-    err.Set("errno", Napi::Number::New(env, errnum));
-    return err;
-}
 
 void LoRaComms::Start(const Napi::CallbackInfo& info)
 {
@@ -247,15 +247,18 @@ Napi::Object LoRaComms::Initialize(Napi::Env env, Napi::Object exports)
         StaticMethod("recv_from", &RecvFrom),
         StaticMethod("send_to", &SendTo),
 
+        StaticValue("uplink", Napi::Number::New(env, uplink)),
+        StaticValue("downlink", Napi::Number::New(env, downlink)),
+
         StaticMethod("set_gw_send_hwm", &SetGWSendHWM),
         StaticMethod("set_gw_send_timeout", &SetGWSendTimeout),
         StaticMethod("set_gw_recv_timeout", &SetGWRecvTimeout),
 
         StaticValue("EBADF", Napi::Number::New(env, EBADF)),
-        StaticValue("EAGAIN", Napi::Number::New(env, EAGAIN))
+        StaticValue("EAGAIN", Napi::Number::New(env, EAGAIN)),
 
-        // TODO:
-        // send and receive max buffer sizes
+        StaticValue("recv_from_buflen", Napi::Number::New(env, recv_from_buflen)),
+        StaticValue("send_to_buflen", Napi::Number::New(env, send_to_buflen))
     }));
 
     return exports;
