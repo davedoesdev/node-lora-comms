@@ -16,7 +16,7 @@
     "url": "https://github.com/davedoesdev/node-lora-comms/issues"
   },
   "license": "MIT",
-  "main": "index.js",
+  "main": "lib/lora-comms.js",
   "scripts": {
     "install": "./build.sh"
   },
