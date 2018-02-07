@@ -2,7 +2,6 @@ const path = require('path'),
       lora_comms = require('..');
 
 // TODO:
-// way of interrupting 'main' thread's sleep
 // log function (default no display on stdout/stderr)
 
 process.on('SIGINT', () => lora_comms.stop());
