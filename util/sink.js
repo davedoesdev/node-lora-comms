@@ -1,35 +1,33 @@
 const path = require('path'),
       lora_comms = require('..');
 
+// TODO:
+// way of interrupting 'main' thread's sleep
+// log function (default no display on stdout/stderr)
+
+process.on('SIGINT', () => lora_comms.stop());
+lora_comms.on('stop', () => console.log('stopped'));
+
 lora_comms.start(
 {
     cfg_dir: path.join(__dirname, '..', '..', 'packet_forwarder_shared', 'lora_pkt_fwd')
 });
 
-process.on('SIGINT', () => lora_comms.stop());
-
-lora_comms.uplink.on('readable', function ()
+function sink(link)
 {
-    while (true)
+    lora_comms[link].on('readable', function ()
     {
-        let data = this.read();
-        if (data === null)
+        while (true)
         {
-            break;
+            let data = this.read();
+            if (data === null)
+            {
+                break;
+            }
+            console.log(`${link} got packet ${data.length} bytes long`);
         }
-        console.log(`Uplink got packet ${data.length} bytes long`);
-    }
-});
+    });
+}
 
-lora_comms.downlink.on('readable', function ()
-{
-    while (true)
-    {
-        let data = this.read();
-        if (data === null)
-        {
-            break;
-        }
-        console.log(`Downlink got packet ${data.length} bytes long`);
-    }
-});
+sink('uplink');
+sink('downlink');
