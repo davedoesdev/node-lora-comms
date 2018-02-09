@@ -1,11 +1,14 @@
 const path = require('path'),
       lora_comms = require('..');
 
-// TODO:
-// log function (default no display on stdout/stderr)
-
 process.on('SIGINT', () => lora_comms.stop());
 lora_comms.on('stop', () => console.log('stopped'));
+
+lora_comms.start_logging();
+lora_comms.log_info.pipe(process.stdout);
+lora_comms.log_error.pipe(process.stderr);
+
+lora_comms.on('error', console.error);
 
 lora_comms.start(
 {

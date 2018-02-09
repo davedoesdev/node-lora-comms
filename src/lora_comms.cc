@@ -1,5 +1,146 @@
+#include <mutex>
+#include <condition_variable>
+#include <queue>
+#include <chrono>
 #include <napi.h>
 #include <lora_comms.h>
+
+using namespace std::chrono_literals;
+
+template<typename Duration>
+class LogQueue
+{
+public:
+    typedef std::queue<std::string> queue_t;
+
+    void reset()
+    {
+        closed = false;
+        close_pending = false;
+    }
+
+    void close(bool immediately)
+    {
+        std::unique_lock<std::mutex> lock(m);
+
+        close_pending = true;
+
+        if (immediately || q.empty())
+        {
+            queue_t empty;
+            std::swap(q, empty);
+            size = 0;
+            closed = true;
+            recv_cv.notify_all();
+        }
+    }
+
+    ssize_t write(const std::vector<char> &msg,
+                  ssize_t hwm,
+                  const Duration &timeout)
+    {
+        std::unique_lock<std::mutex> lock(m);
+
+        if (closed)
+        {
+            errno = EBADF;
+            return -1;
+        }
+
+        if ((hwm >= 0) && (size > hwm))
+        {
+            // wait until buffered data size <= hwm
+            auto pred = [this, hwm]
+            {
+                return closed || (this->size <= hwm);
+            };
+
+            if (timeout < Duration::zero())
+            {
+                // timeout < 0 means block
+                send_cv.wait(lock, pred);
+            }
+            else if ((timeout == Duration::zero()) ||
+                     !send_cv.wait_for(lock, timeout, pred))
+            {
+                errno = EAGAIN;
+                return -1;
+            }
+
+            if (closed)
+            {
+                errno = EBADF;
+                return -1;
+            }
+        }
+
+        q.emplace(msg.data());
+        ssize_t r = q.back().size();
+        size += r;
+        recv_cv.notify_all();
+
+        return r;
+    }
+
+    ssize_t read(std::string &msg, const Duration &timeout)
+    {
+        std::unique_lock<std::mutex> lock(m);
+
+        if (closed)
+        {
+            errno = EBADF;
+            return -1;
+        }
+
+        if (q.empty())
+        {
+            if (close_pending)
+            {
+                closed = true;
+                errno = EBADF;
+                return -1;
+            }
+
+            auto pred = [this]
+            {
+                return closed || !this->q.empty();
+            };
+
+            if (timeout < Duration::zero())
+            {
+                // timeout < 0 means block
+                recv_cv.wait(lock, pred);
+            }
+            else if ((timeout == Duration::zero()) ||
+                     !recv_cv.wait_for(lock, timeout, pred))
+            {
+                errno = EAGAIN;
+                return -1;
+            }
+
+            if (closed)
+            {
+                errno = EBADF;
+                return -1;
+            }
+        }
+
+        msg = q.front();
+        q.pop();
+        size -= msg.size();
+        send_cv.notify_all();
+
+        return msg.size();
+    }
+
+private:
+    std::mutex m;
+    std::condition_variable send_cv, recv_cv;
+    queue_t q;
+    ssize_t size = 0;
+    bool closed = false;
+    bool close_pending = false;
+};
 
 class LoRaComms : public Napi::ObjectWrap<LoRaComms>
 {
@@ -9,6 +150,8 @@ public:
     static Napi::Object Initialize(Napi::Env env, Napi::Object exports);
 
 private:
+    friend class StartAsyncWorker;
+
     static void Start(const Napi::CallbackInfo& info);
     static void Stop(const Napi::CallbackInfo& info);
     static void Reset(const Napi::CallbackInfo& info);
@@ -20,9 +163,32 @@ private:
     static void SetGWSendTimeout(const Napi::CallbackInfo& info);
     static void SetGWRecvTimeout(const Napi::CallbackInfo& info);
 
+    static void StartLogging(const Napi::CallbackInfo& info);
+    static void StopLogging(const Napi::CallbackInfo& info);
+    static void GetLogInfoMessage(const Napi::CallbackInfo& info);
+    static void GetLogErrorMessage(const Napi::CallbackInfo& info);
+    static void SetLogMaxMessageSize(const Napi::CallbackInfo& info);
+    static void SetLogWriteHWM(const Napi::CallbackInfo& info);
+    static void SetLogWriteTimeout(const Napi::CallbackInfo& info);
+    static int Logger(FILE *stream, const char *format, va_list ap);
+
     static struct timeval TimeVal(const Napi::CallbackInfo& info,
                                   const uint32_t arg);
+
+    static std::chrono::microseconds Microseconds(
+            const Napi::CallbackInfo& info,
+            const uint32_t arg);
+
+    static size_t log_max_msg_size;
+    static ssize_t log_write_hwm;
+    static std::chrono::microseconds log_write_timeout;
+    static LogQueue<std::chrono::microseconds> log_info, log_error;
 };
+
+size_t LoRaComms::log_max_msg_size = 1024;
+ssize_t LoRaComms::log_write_hwm = -1;
+std::chrono::microseconds LoRaComms::log_write_timeout = -1us;
+LogQueue<std::chrono::microseconds> LoRaComms::log_info, LoRaComms::log_error;
 
 LoRaComms::LoRaComms(const Napi::CallbackInfo& info) :
     Napi::ObjectWrap<LoRaComms>(info)
@@ -57,6 +223,9 @@ protected:
         {
             SetError("failed");
         }
+
+        LoRaComms::log_info.close(false);
+        LoRaComms::log_error.close(false);
     }
 
 private:
@@ -223,6 +392,110 @@ void LoRaComms::SetGWRecvTimeout(const Napi::CallbackInfo& info)
     set_gw_recv_timeout(info[0].As<Napi::Number>(), &tv);
 }
 
+void LoRaComms::StartLogging(const Napi::CallbackInfo& info)
+{
+    set_logger(Logger);
+}
+
+void LoRaComms::StopLogging(const Napi::CallbackInfo& info)
+{
+    set_logger(nullptr);
+    log_info.close(true);
+    log_error.close(true);
+}
+
+class LogAsyncWorker : public Napi::AsyncWorker
+{
+public:
+    LogAsyncWorker(const Napi::Function& callback,
+                   LogQueue<std::chrono::microseconds> *q,
+                   const std::chrono::microseconds &timeout) :
+        Napi::AsyncWorker(callback),
+        q(q),
+        timeout(timeout)
+    {
+    }
+
+protected:
+    void Execute() override
+    {
+        result = q->read(msg, timeout);
+        if (result < 0)
+        {
+            errnum = errno;
+        }
+    }
+
+    void OnOK() override
+    {
+        Napi::Env env = Env();
+        Callback().MakeCallback(
+            Receiver().Value(),
+            std::initializer_list<napi_value>
+            {
+                result < 0 ? ErrnoError(env, errnum).Value() : env.Null(),
+                Napi::String::New(env, msg)
+            });
+    }
+
+private:
+    LogQueue<std::chrono::microseconds> *q;
+    std::chrono::microseconds timeout;
+    std::string msg;
+    ssize_t result;
+    int errnum;
+};
+
+void LoRaComms::GetLogInfoMessage(const Napi::CallbackInfo& info)
+{
+    (new LogAsyncWorker(info[2].As<Napi::Function>(),
+                        &log_info,
+                        Microseconds(info, 0)))
+        ->Queue();
+}
+
+void LoRaComms::GetLogErrorMessage(const Napi::CallbackInfo& info)
+{
+    (new LogAsyncWorker(info[2].As<Napi::Function>(),
+                        &log_error,
+                        Microseconds(info, 0)))
+        ->Queue();
+}
+
+void LoRaComms::SetLogMaxMessageSize(const Napi::CallbackInfo& info)
+{
+    log_max_msg_size = static_cast<uint32_t>(info[0].As<Napi::Number>());
+}
+
+void LoRaComms::SetLogWriteHWM(const Napi::CallbackInfo& info)
+{
+    log_write_hwm = info[0].As<Napi::Number>();
+}
+
+void LoRaComms::SetLogWriteTimeout(const Napi::CallbackInfo& info)
+{
+    log_write_timeout = Microseconds(info, 0);
+}
+
+int LoRaComms::Logger(FILE *stream, const char *format, va_list ap)
+{
+    std::vector<char> msg(log_max_msg_size);
+    vsnprintf(msg.data(), log_max_msg_size, format, ap);
+
+    if (stream == stdout)
+    {
+        return log_info.write(msg, log_write_hwm, log_write_timeout);
+    }
+
+    if (stream == stderr)
+    {
+        return log_error.write(msg, log_write_hwm, log_write_timeout);
+    }
+
+    errno = EINVAL;
+    return -1;
+}
+
 typedef std::conditional<sizeof(time_t) == 8, int64_t, int32_t>::type tm_t;
 
 struct timeval LoRaComms::TimeVal(const Napi::CallbackInfo& info,
@@ -232,6 +505,14 @@ struct timeval LoRaComms::TimeVal(const Napi::CallbackInfo& info,
     tv.tv_sec = static_cast<tm_t>(info[arg].As<Napi::Number>());
     tv.tv_usec = static_cast<tm_t>(info[arg+1].As<Napi::Number>());
     return tv;
+}
+
+std::chrono::microseconds LoRaComms::Microseconds(
+            const Napi::CallbackInfo& info,
+            const uint32_t arg)
+{
+    return static_cast<tm_t>(info[arg].As<Napi::Number>()) * 1s +
+           static_cast<tm_t>(info[arg+1].As<Napi::Number>()) * 1us;
 }
 
 Napi::Object LoRaComms::Initialize(Napi::Env env, Napi::Object exports)
@@ -251,6 +532,14 @@ Napi::Object LoRaComms::Initialize(Napi::Env env, Napi::Object exports)
         StaticMethod("set_gw_send_hwm", &SetGWSendHWM),
         StaticMethod("set_gw_send_timeout", &SetGWSendTimeout),
         StaticMethod("set_gw_recv_timeout", &SetGWRecvTimeout),
+
+        StaticMethod("start_logging", &StartLogging),
+        StaticMethod("stop_logging", &StopLogging),
+        StaticMethod("get_log_info_message", &GetLogInfoMessage),
+        StaticMethod("get_log_error_message", &GetLogErrorMessage),
+        StaticMethod("set_log_max_msg_size", &SetLogMaxMessageSize),
+        StaticMethod("set_log_write_hwm", &SetLogWriteHWM),
+        StaticMethod("set_log_write_timeout", &SetLogWriteTimeout),
 
         StaticValue("EBADF", Napi::Number::New(env, EBADF)),
         StaticValue("EAGAIN", Napi::Number::New(env, EAGAIN)),
