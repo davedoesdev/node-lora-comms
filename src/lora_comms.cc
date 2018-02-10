@@ -15,6 +15,10 @@ public:
 
     void reset()
     {
+        // packet forwarder threads may still be active so we need to lock,
+        // which is different to reset() in lora_comms which will be called
+        // after the main forwarder thread has exited
+        std::unique_lock<std::mutex> lock(m);
         closed = false;
         close_pending = false;
     }
@@ -165,6 +169,7 @@ private:
 
     static void StartLogging(const Napi::CallbackInfo& info);
     static void StopLogging(const Napi::CallbackInfo& info);
+    static void ResetLogging(const Napi::CallbackInfo& info);
     static void GetLogInfoMessage(const Napi::CallbackInfo& info);
     static void GetLogErrorMessage(const Napi::CallbackInfo& info);
     static void SetLogMaxMessageSize(const Napi::CallbackInfo& info);
@@ -404,6 +409,12 @@ void LoRaComms::StopLogging(const Napi::CallbackInfo& info)
     log_error.close(true);
 }
 
+void LoRaComms::ResetLogging(const Napi::CallbackInfo& info)
+{
+    log_info.reset();
+    log_error.reset();
+}
+
 class LogAsyncWorker : public Napi::AsyncWorker
 {
 public:
@@ -535,6 +546,7 @@ Napi::Object LoRaComms::Initialize(Napi::Env env, Napi::Object exports)
 
         StaticMethod("start_logging", &StartLogging),
         StaticMethod("stop_logging", &StopLogging),
+        StaticMethod("reset_logging", &ResetLogging),
         StaticMethod("get_log_info_message", &GetLogInfoMessage),
         StaticMethod("get_log_error_message", &GetLogErrorMessage),
         StaticMethod("set_log_max_msg_size", &SetLogMaxMessageSize),
