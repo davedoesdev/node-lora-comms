@@ -1,5 +1,5 @@
-const path = require('path'),
-      lora_comms = require('..');
+const lora_comms = require('..'),
+      path = require('path');
 
 process.on('SIGINT', () => lora_comms.stop());
 lora_comms.on('stop', () => console.log('stopped'));
