@@ -244,24 +244,9 @@ void LoRaComms::Start(const Napi::CallbackInfo& info)
         ->Queue();
 }
 
-class StopAsyncWorker : public Napi::AsyncWorker
-{
-public:
-    StopAsyncWorker(const Napi::Function& callback) :
-        Napi::AsyncWorker(callback)
-    {
-    }
-
-protected:
-    void Execute() override
-    {
-        stop();
-    }
-};
-
 void LoRaComms::Stop(const Napi::CallbackInfo& info)
 {
-    (new StopAsyncWorker(info[0].As<Napi::Function>()))->Queue();
+    stop();
 }
 
 void LoRaComms::Reset(const Napi::CallbackInfo& info)
