@@ -83,7 +83,7 @@ function ack(link)
             // add some artificial latency
             setTimeout(() =>
             {
-                console.log(msg);
+                console.log(ack_message);
                 data[3] = ack_command;
                 lora_comms[link].write(data.slice(0, 4));
                 console.log(', 4 bytes sent');
