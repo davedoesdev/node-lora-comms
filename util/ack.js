@@ -39,12 +39,12 @@ function ack(link)
                 break;
             }
 
-            console.log(` -> pkt in, ${link}, ${data.length} bytes`);
+            process.stdout.write(` -> pkt in, ${link}, ${data.length} bytes`);
 
             // check and parse the payload
             if (data.length < 12) // not enough bytes for packet from gateway
             {
-                console.error(' (too short for GW <-> MAC protocol)');
+                process.stdout.write(' (too short for GW <-> MAC protocol)\n');
                 continue;
             }
 
@@ -52,7 +52,7 @@ function ack(link)
             // "as is" for acknowledgement
             if (data[0] != PROTOCOL_VERSION) // check protocol version number
             {
-                console.error(`, invalid version ${data[0]}`);
+                process.stdout.write(`, invalid version ${data[0]}\n`);
                 continue;
             }
 
@@ -64,29 +64,29 @@ function ack(link)
             let ack_command, ack_message;
             if ((link === 'uplink') && (data[3] === PKT_PUSH_DATA))
             {
-                console.log(`, PUSH_DATA from gateway ${gw_mac}`);
+                process.stdout.write(`, PUSH_DATA from gateway ${gw_mac}\n`);
                 ack_command = PKT_PUSH_ACK;
                 ack_message = '<-  pkt out, PUSH_ACK';
             }
             else if ((link === 'downlink') && (data[3] === PKT_PULL_DATA))
             {
-                console.log(`, PULL_DATA from gateway ${gw_mac}`);
+                process.stdout.write(`, PULL_DATA from gateway ${gw_mac}\n`);
                 ack_command = PKT_PULL_ACK;
                 ack_message = '<-  pkt out, PULL_ACK';
             }
             else
             {
-                console.error(`, unexpected command ${data[3]}`);
+                process.stdout.write(`, unexpected command ${data[3]}\n`);
                 continue;
             }
 
             // add some artificial latency
             setTimeout(() =>
             {
-                console.log(ack_message);
+                process.stdout.write(ack_message);
                 data[3] = ack_command;
                 lora_comms[link].write(data.slice(0, 4));
-                console.log(', 4 bytes sent');
+                process.stdout.write(', 4 bytes sent\n');
             }, 30); // 30ms
         }
     });
