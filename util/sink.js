@@ -20,9 +20,10 @@ function sink(link)
 {
     lora_comms[link].pipe(new Transform(
     {
-        transform(data, encoding, callback)
+        transform(data, _, cb)
         {
             this.push(`${link} got packet ${data.length} bytes long\n`);
+            cb();
         }
     })).pipe(process.stdout);
 }
