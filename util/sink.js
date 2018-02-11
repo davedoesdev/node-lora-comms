@@ -1,5 +1,6 @@
 const lora_comms = require('..'),
-      path = require('path');
+      path = require('path'),
+      { Transform } = require('stream');
 
 process.on('SIGINT', lora_comms.stop);
 lora_comms.on('stop', () => console.log('stopped'));
@@ -17,21 +18,13 @@ lora_comms.start(
 
 function sink(link)
 {
-// TODO: should we do this using pipe through to transform stream
-// which is then piped through to process.stdout?
-
-    lora_comms[link].on('readable', function ()
+    lora_comms[link].pipe(new Transform(
     {
-        while (true)
+        transform(data, encoding, callback)
         {
-            let data = this.read();
-            if (data === null)
-            {
-                break;
-            }
-            console.log(`${link} got packet ${data.length} bytes long`);
+            this.push(`${link} got packet ${data.length} bytes long\n`);
         }
-    });
+    })).pipe(process.stdout);
 }
 
 sink('uplink');
