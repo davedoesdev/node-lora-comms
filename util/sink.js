@@ -1,14 +1,17 @@
 const lora_comms = require('..'),
       path = require('path'),
       { Transform } = require('stream');
-      argv = require('yargs').command('$0 [cfg_dir]', 'Network sink', yargs =>
-      {
-          yargs.positional('cfg_dir',
-          {
+      argv = require('yargs').command(
+          '$0',
+          'Network sink, receives packets and discards them')
+          .option('c', {
+              alias: 'cfg_dir',
+              type: 'string',
+              describe: 'configuration directory',
               default: path.join(__dirname, '..', '..',
                                  'packet_forwarder_shared', 'lora_pkt_fwd')
-          });
-      }).argv;
+          })
+          .argv;
 
 process.on('SIGINT', lora_comms.stop);
 lora_comms.on('stop', () => console.log('stopped'));
