@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 set -x
-VER_LGS=shared-v0.0.1
-VER_PFS=shared-v0.0.8
+VER_LGS=shared-v0.0.2
+VER_PFS=shared-v0.0.9
 if [ ! -d lora_gateway_shared-$VER_LGS ]; then
     wget -O - https://github.com/davedoesdev/lora_gateway_shared/archive/$VER_LGS.tar.gz | tar -zx
 fi
