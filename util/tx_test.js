@@ -184,7 +184,7 @@ function send(cb)
     crypto.randomFillSync(header, 1, 2); // random token
 
     // send packet to the gateway
-    databuf = Buffer.concat(header, Buffer.from(JSON.stringify({txpk: txpk})));
+    databuf = Buffer.concat([header, Buffer.from(JSON.stringify({txpk: txpk}))]);
     if (databuf.length > lora_comms.LoRaComms.send_to_buflen)
     {
         return cb(new Error('data too long'));
@@ -223,7 +223,7 @@ lora_comms.downlink.pipe(new Transform(
                        ('0000000' + mac_l.toString(16)).substr(-8);
 
         // display info about the sender
-        console.info(`INFO: ${expected} received from gateway ${gateway}`);
+        console.info(`INFO: ${expected} received from gateway ${gw_mac}`);
 
         if (i === 0)
         {
@@ -238,6 +238,7 @@ lora_comms.downlink.pipe(new Transform(
 
         if (i === argv.repeat)
         {
+            lora_comms.stop();
             return cb();
         }
 
@@ -247,6 +248,6 @@ lora_comms.downlink.pipe(new Transform(
         }
 
         // wait inter-packet delay
-        setTimeout(send.bind(this, cb), argv.delay * 1000);
+        setTimeout(send.bind(this, cb), argv.delay);
     }
 })).pipe(lora_comms.downlink);
