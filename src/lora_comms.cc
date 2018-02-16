@@ -51,12 +51,17 @@ public:
             return -1;
         }
 
-        if ((hwm >= 0) && (size > hwm))
+        if (hwm == 0)
         {
-            // wait until buffered data size <= hwm
+            return 0;
+        }
+
+        if ((hwm > 0) && (size >= hwm))
+        {
+            // wait until buffered data size < hwm
             auto pred = [this, hwm]
             {
-                return closed || (this->size <= hwm);
+                return closed || (this->size < hwm);
             };
 
             if (timeout < Duration::zero())
