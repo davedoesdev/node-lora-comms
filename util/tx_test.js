@@ -212,7 +212,7 @@ lora_comms.downlink.pipe(new Transform(
             (data[0] !== PROTOCOL_VERSION) ||
             (data[3] !== pkts[expected]))
         {
-            console.info(`INFO: packet received, not ${expected}`);
+            console.info(`INFO: packet ${data[3]} received, not ${expected}`);
             return cb();
         }
 
