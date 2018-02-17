@@ -238,7 +238,8 @@ lora_comms.downlink.pipe(new Transform(
 
         if (i === argv.repeat)
         {
-            lora_comms.stop();
+            // give time for packet to be emitted
+            setTimeout(lora_comms.stop, argv.delay);
             return cb();
         }
 
