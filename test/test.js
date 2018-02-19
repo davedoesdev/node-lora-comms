@@ -1,9 +1,9 @@
+// Tested with a SODAQ ExpLoRer running ./echo.ino
+
 const lora_comms = require('..'),
       path = require('path');
 
-// Tested with a SODAQ ExpLoRer running ./echo.ino 
-
-beforeEach(function ()
+before(function ()
 {
     lora_comms.start_logging();
     lora_comms.log_info.pipe(process.stdout);
@@ -16,24 +16,29 @@ beforeEach(function ()
     });
 });
 
-afterEach(function (cb)
+after(function (cb)
 {
-    let count = 0;
-    function check()
+    this.timeout(30 * 1000);
+
+    if (!lora_comms.active)
     {
-        count++;
-        if (count === 3)
-        {
-            lora_comms.stop_logging();
-            cb();
-        }
+        return cb();
     }
 
-    lora_comms.once('stop', ended);
-    lora_comms.log_info.on('end', ended);
-    lora_comms.log_error.on('end', ended);
-
+    lora_comms.once('stop', cb);
     lora_comms.stop();
+});
+
+after(function (cb)
+{
+    if (!lora_comms.logging_active)
+    {
+        return cb();
+    }
+
+    lora_comms.once('logging_stop', cb);
+    // no need to call lora_comms.stop_logging(), logging_stop will be emitted
+    // once the log streams end
 });
 
 describe('echoing device', function ()
