@@ -49,7 +49,7 @@ function ack(link, pkt)
 
             // don't touch the token in position 1-2, it will be sent back
             // "as is" for acknowledgement
-            if (data[0] != PROTOCOL_VERSION) // check protocol version number
+            if (data[0] !== PROTOCOL_VERSION) // check protocol version number
             {
                 process.stdout.write(`, invalid version ${data[0]}\n`);
                 return cb();
