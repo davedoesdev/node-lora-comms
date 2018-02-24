@@ -44,6 +44,8 @@
     "nyc": "~11.4.1",
     "babel-eslint": "~8.2.1",
     "documentation": "~5.4.0",
-    "coveralls": "~3.0.0"
+    "coveralls": "~3.0.0",
+    "lora-packet": "^0.7.5",
+    "awaitify-stream": "git+https://github.com/davedoesdev/node-awaitify-stream.git"
   }
 }

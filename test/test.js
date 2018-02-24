@@ -1,7 +1,10 @@
-// Tested with a SODAQ ExpLoRer running ./echo.ino
+// Tested with a SODAQ ExpLoRer running ./node-lora-comms-test.ino
 
 const lora_comms = require('..'),
+      lora_packet = require('lora-packet'),
       path = require('path'),
+      aw = require('awaitify-stream'),
+      expect = require('chai').expect,
       PROTOCOL_VERSION = 2,
       pkts = {
           PUSH_DATA: 0,
@@ -11,6 +14,21 @@ const lora_comms = require('..'),
           PULL_ACK: 4,
           TX_ACK: 5
       };
+
+let uplink, downlink;
+
+async function wait_for(link, pkt)
+{
+    let data;
+    do
+    {
+        data = await link.readAsync();
+    }
+    while ((data.length < 4) ||
+           (data[0] !== PROTOCOL_VERSION) ||
+           (data[3] !== pkt));
+    return data;
+}
 
 before(function ()
 {
@@ -23,12 +41,13 @@ before(function ()
         cfg_dir: path.join(__dirname, '..', '..',
                            'packet_forwarder_shared', 'lora_pkt_fwd')
     });
+
+    uplink = aw.createDuplexer(lora_comms.uplink);
+    downlink = aw.createDuplexer(lora_comms.downlink);
 });
 
-after(function (cb)
+function stop(cb)
 {
-    this.timeout(30 * 1000);
-
     if (!lora_comms.active)
     {
         return cb();
@@ -36,7 +55,13 @@ after(function (cb)
 
     lora_comms.once('stop', cb);
     lora_comms.stop();
+}
+after(function (cb)
+{
+    this.timeout(30 * 1000);
+    stop(cb);
 });
+process.on('SIGINT', () => stop(() => {}));
 
 after(function (cb)
 {
@@ -52,25 +77,46 @@ after(function (cb)
 
 describe('echoing device', function ()
 {
-    it('should receive same data sent', function (done)
+    it('should receive same data sent', async function ()
     {
-        this.timeout(30000);
+        this.timeout(60 * 60 * 1000);
 
-        let sent_payload = Buffer.alloc(12);
-
-        lora_comms.uplink.pipe(new Transform(
+        while (true)
         {
-            transform(data, _, cb)
-            {
-                if ((data.length < 12) ||
-                    (data[0] !== PROTOCOL_VERSION) ||
-                    (data[3] !== pkts['PUSH_DATA']))
-                {
-                    return cb();
-                }
+            let packet = await wait_for(downlink, pkts.PULL_DATA);
+            packet[3] = pkts.PULL_ACK;
+            await downlink.writeAsync(packet.slice(0, 4));
 
-                data[3] = pkts['PUSH_ACK'];
-                cb(null, data.slice(0, 4));
+            packet = await wait_for(uplink, pkts.PUSH_DATA);
+            packet[3] = pkts.PUSH_ACK;
+            await uplink.writeAsync(packet.slice(0, 4));
+
+            let payload = JSON.parse(packet.slice(12));
+            if (!payload.rxpk)
+            {
+                continue;
+            }
+
+            let data = Buffer.from(payload.rxpk[0].data, 'base64');
+            let decoded = lora_packet.fromWire(data);
+            let buffers = decoded.getBuffers();
+
+            if (!buffers.DevAddr.equals(Buffer.alloc(4)))
+            {
+                continue;
+            }
+
+            let NwkSKey = Buffer.alloc(16); // TODO: Use non-zero keys
+            expect(lora_packet.verifyMIC(decoded, NwkSKey)).to.be.true;
+
+            let AppSKey = Buffer.alloc(16);
+            console.log(lora_packet.decrypt(decoded, AppSKey, NwkSKey));
+
+            break;
+        }
+
+
+/*
 
                 // Decode payload
                 // Check if matches - unpipe and done if so
@@ -81,18 +127,6 @@ describe('echoing device', function ()
                 // It can save it and send it when it gets PULL_DATA or TX_ACK
             }
         })).pipe(lora_comms.uplink);
-
-/*
-        // wait for PUSH_DATA
-
-        // send PUSH_ACK
-
-        // wait for PULL_DATA
-        let data = await wait_for(downlink, pkts.PULL_DATA);
-
-        // send PULL_ACK
-        data[3] = pkts.PULL_ACK;
-        downlink.writeAsync(data);
 
         // send TX_RESP with value from device and random value from us
 
