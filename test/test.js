@@ -53,24 +53,37 @@ async function wait_for(link, pkt)
     }
 }
 
-before(function ()
+function start(options)
 {
-    lora_comms.start_logging();
-    lora_comms.log_info.pipe(process.stdout);
-    lora_comms.log_error.pipe(process.stderr);
-
-    lora_comms.start(
+    options = Object.assign(
     {
         cfg_dir: path.join(__dirname, '..',
                            'packet_forwarder_shared', 'lora_pkt_fwd')
-    });
+    }, options);
+    
+    return function ()
+    {
+        lora_comms.start_logging();
+        lora_comms.log_info.pipe(process.stdout);
+        lora_comms.log_error.pipe(process.stderr);
 
-    uplink = aw.createDuplexer(lora_comms.uplink);
-    downlink = aw.createDuplexer(lora_comms.downlink);
-});
+        lora_comms.start(options);
+
+        if (!options.no_streams)
+        {
+            uplink = aw.createDuplexer(lora_comms.uplink);
+            downlink = aw.createDuplexer(lora_comms.downlink);
+        }
+    };
+}
 
 function stop(cb)
 {
+    if (this && this.timeout)
+    {
+        this.timeout(30 * 1000);
+    }
+
     if (!lora_comms.active)
     {
         return cb();
@@ -79,14 +92,9 @@ function stop(cb)
     lora_comms.once('stop', cb);
     lora_comms.stop();
 }
-after(function (cb)
-{
-    this.timeout(30 * 1000);
-    stop(cb);
-});
 process.on('SIGINT', () => stop(() => {}));
 
-after(function (cb)
+function wait_for_logs(cb)
 {
     if (!lora_comms.logging_active)
     {
@@ -96,10 +104,14 @@ after(function (cb)
     lora_comms.once('logging_stop', cb);
     // no need to call lora_comms.stop_logging(), logging_stop will be emitted
     // once the log streams end
-});
+}
 
 describe('echoing device', function ()
 {
+    before(start());
+    after(stop);
+    after(wait_for_logs);
+
     it('should receive same data sent', async function ()
     {
         this.timeout(60 * 60 * 1000);
@@ -198,5 +210,70 @@ describe('echoing device', function ()
             expect(tx_ack[1]).to.equal(header[1]);
             expect(tx_ack[2]).to.equal(header[2]);
         }
+    });
+});
+
+describe('errors', function ()
+{
+    it("should error if can't find configuration file", function (cb)
+    {
+        lora_comms.once('error', function (err)
+        {
+            expect(err.message).to.equal('failed');
+            cb();
+        });
+
+        start({cfg_dir: 'foobar'})();
+    });
+});
+
+describe('logging', function ()
+{
+    it('should be able to end log streams', function (cb)
+    {
+        this.timeout(30 * 1000);
+        lora_comms.once('logging_stop', function ()
+        {
+            lora_comms.once('stop', cb);
+            lora_comms.stop();
+        });
+        start()();
+        expect(lora_comms.uplink).not.to.be.undefined;
+        expect(lora_comms.downlink).not.to.be.undefined;
+        lora_comms.stop_logging();
+    });
+});
+
+describe('start multiple times', function ()
+{
+    it('should be able to start twice', function (cb)
+    {
+        this.timeout(30 * 1000);
+        start()();
+        lora_comms.start();
+        lora_comms.once('stop', cb);
+        lora_comms.stop();
+    });
+
+    it('should be able to start logging twice', function (cb)
+    {
+        this.timeout(30 * 1000);
+        start()();
+        lora_comms.start_logging();
+        lora_comms.once('stop', cb);
+        lora_comms.stop();
+    });
+});
+
+describe('no streams', function ()
+{
+    it('should be able to disable stream creation', function (cb)
+    {
+        this.timeout(30 * 1000);
+        start({ no_streams: true })();
+        expect(lora_comms.uplink).to.be.null;
+        expect(lora_comms.downlink).to.be.null;
+        lora_comms.once('stop', cb);
+        lora_comms.stop();
     });
 });
