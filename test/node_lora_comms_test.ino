@@ -59,16 +59,18 @@ void loop()
 {
   uint8_t send_payload[payload_size];
   // Fill our random data
-  for (size_t i = 0; i < 6; i++)
+  for (size_t i = 0; i < payload_size/2; i++)
   {
     send_payload[i] = random(256);
   }
   // Fill their random data. First time round this won't match what
   // they're expecting but they should just ignore it and send their packet.
-  for (size_t i = 6; i < 12; i++)
+  for (size_t i = payload_size/2; i < payload_size; i++)
   {
     send_payload[i] = recv_payload[i];
+    //p("%02x %02x ", i, recv_payload[i]);
   }
+  //debugSerial.println("");
 
   // Send packet
   uint8_t status = LoRaBee.send(1, send_payload, sizeof(send_payload));
@@ -79,23 +81,20 @@ void loop()
   }
   debugSerial.println("Sent packet");
 
-  for (uint8_t i = 0; i < 5; i++)
+  for (uint8_t i = 0; i < 60; i++)
   {
     // Receive packet
     uint8_t n = LoRaBee.receive(recv_payload, sizeof(recv_payload));
-    p("Received %d bytes\n", n);
+    //p("Received %d bytes\n", n);
 
     // Check if we got back our data
     if ((n == sizeof(recv_payload)) &&
-        (memcmp(recv_payload, send_payload, 6) == 0))
+        (memcmp(recv_payload, send_payload, payload_size/2) == 0))
     {
       debugSerial.println("Received matching packet");
       break;      
     }
-    debugSerial.println("No matching bytes received");
+    //debugSerial.println("No matching bytes received");
     delay(1000);
   }
-
-  debugSerial.println("Sleeping");
-  delay(60000);
 }

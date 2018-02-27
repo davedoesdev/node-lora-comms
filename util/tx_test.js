@@ -9,7 +9,7 @@ const lora_comms = require('..'),
               alias: 'cfg_dir',
               type: 'string',
               describe: 'configuration directory',
-              default: path.join(__dirname, '..', '..',
+              default: path.join(__dirname, '..',
                                  'packet_forwarder_shared', 'lora_pkt_fwd')
           })
           .option('f', {

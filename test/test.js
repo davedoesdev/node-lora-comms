@@ -14,7 +14,12 @@ const lora_comms = require('..'),
           PULL_RESP: 3,
           PULL_ACK: 4,
           TX_ACK: 5
-      };
+      },
+      // USE YOUR OWN KEYS!
+      DevAddr = Buffer.alloc(4),
+      NwkSKey = Buffer.alloc(16),
+      AppSKey = Buffer.alloc(16),
+      payload_size = 12;
 
 let uplink, downlink;
 
@@ -56,7 +61,7 @@ before(function ()
 
     lora_comms.start(
     {
-        cfg_dir: path.join(__dirname, '..', '..',
+        cfg_dir: path.join(__dirname, '..',
                            'packet_forwarder_shared', 'lora_pkt_fwd')
     });
 
@@ -101,7 +106,7 @@ describe('echoing device', function ()
 
         await wait_for(downlink, pkts.PULL_DATA);
 
-        let send_payload = crypto.randomBytes(12);
+        let send_payload = crypto.randomBytes(payload_size);
         let count = 0;
 
         while (true)
@@ -118,25 +123,38 @@ describe('echoing device', function ()
             let decoded = lora_packet.fromWire(recv_data);
             let buffers = decoded.getBuffers();
 
-            let DevAddr = Buffer.alloc(4); // TODO: Use non-zero keys
             if (!buffers.DevAddr.equals(DevAddr))
             {
                 continue;
             }
 
-            let NwkSKey = Buffer.alloc(16); // TODO: Use non-zero keys
             expect(lora_packet.verifyMIC(decoded, NwkSKey)).to.be.true;
 
-            let AppSKey = Buffer.alloc(16); // TODO: Use non-zero keys
             let recv_payload = lora_packet.decrypt(decoded, AppSKey, NwkSKey);
 
-            if (recv_payload.compare(send_payload, 6, send_payload.length, 6) === 0)
+            if (recv_payload.length !== payload_size)
+            {
+                continue;
+            }
+
+            if (recv_payload.equals(send_payload))
+            {
+                // Shouldn't happen because send on reverse polarity
+                console.error('Received packet we sent');
+                continue;
+            }
+
+            if (recv_payload.compare(send_payload,
+                                     payload_size/2,
+                                     payload_size,
+                                     payload_size/2,
+                                     payload_size) === 0)
             {
                 break;
             }
 
-            send_payload = Buffer.concat([recv_payload.slice(0, 6),
-                                          crypto.randomBytes(6)]);
+            send_payload = Buffer.concat([recv_payload.slice(0, payload_size/2),
+                                          crypto.randomBytes(payload_size/2)]);
 
             let encoded = lora_packet.fromFields({
                 MType: 'Unconfirmed Data Down',
@@ -160,15 +178,15 @@ describe('echoing device', function ()
             header[3] = pkts.PULL_RESP;
 
             let txpk = {
-                imme: true,
+                tmst: rxpk.tmst + 1000000, // first receive window (1s)
                 freq: rxpk.freq,
                 rfch: 0, // only 0 can transmit
-                powe: 14,
+                //powe: 14,
                 modu: rxpk.modu,
                 datr: rxpk.datr,
                 codr: rxpk.codr,
-                ipol: false,
-                prea: 8,
+                ipol: true,
+                //prea: 8,
                 size: send_data.length,
                 data: send_data.toString('base64')
             };
@@ -179,60 +197,6 @@ describe('echoing device', function ()
             let tx_ack = await wait_for(downlink, pkts.TX_ACK);
             expect(tx_ack[1]).to.equal(header[1]);
             expect(tx_ack[2]).to.equal(header[2]);
-
-/*
-{ rxpk: 
-   [ { tmst: 54497595,
-       chan: 1,
-       rfch: 1,
-       freq: 868.3,
-       stat: 1,
-       modu: 'LORA',
-       datr: 'SF7BW125',
-       codr: '4/5',
-       lsnr: 10.2,
-       rssi: -5,
-       size: 25,
-       data: 'QAAAAAAAPgABEUCVTKXXJqtyU18zz04VpQ==' } ] }
-*/
-
-
-
-            // make packet for forwarder
-
-
-            // send
         }
-
-
-/*
-
-                // Decode payload
-                // Check if matches - unpipe and done if so
-                // unpipe other pipe too
-
-                // Save it so other pipe can send it
-                // Perhaps we should make the TX_RESP here and write it
-                // It can save it and send it when it gets PULL_DATA or TX_ACK
-            }
-        })).pipe(lora_comms.uplink);
-
-        // send TX_RESP with value from device and random value from us
-
-                // TODO: check TX_ACK token
-        // wait for TX_ACK and PUSH_DATA
-        // send PUSH_ACK
-        // check value is echoed back to us
-
-        // how do we ensure we can run this at any time?
-        // device will have to set timeout after which it tries to send again
-
-        // loop (note prevent waiting for PUSH_DATA twice above)
-        // - have waiting for (starts null)
-*/
-
-
     });
 });
-
-// test logging
