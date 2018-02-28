@@ -2,6 +2,7 @@
 #include <condition_variable>
 #include <queue>
 #include <chrono>
+#include <unordered_map>
 #include <napi.h>
 #include <lora_comms.h>
 
@@ -193,6 +194,12 @@ private:
     static ssize_t log_write_hwm;
     static std::chrono::microseconds log_write_timeout;
     static LogQueue<std::chrono::microseconds> log_info, log_error;
+
+    struct LogWriter
+    {
+        LogQueue<std::chrono::microseconds>* queue = &log_info;
+        const ssize_t hwm = 0;
+    };
 };
 
 size_t LoRaComms::log_max_msg_size = 1024;
@@ -483,18 +490,14 @@ int LoRaComms::Logger(FILE *stream, const char *format, va_list ap)
     std::vector<char> msg(log_max_msg_size);
     vsnprintf(msg.data(), log_max_msg_size, format, ap);
 
-    if (stream == stdout)
+    std::unordered_map<FILE*, LogWriter> log_writers
     {
-        return log_info.write(msg, log_write_hwm, log_write_timeout);
-    }
+        { stdout, { &log_info, log_write_hwm } },
+        { stderr, { &log_error, log_write_hwm } }
+    };
 
-    if (stream == stderr)
-    {
-        return log_error.write(msg, log_write_hwm, log_write_timeout);
-    }
-
-    errno = EINVAL;
-    return -1;
+    LogWriter &writer = log_writers[stream];
+    return writer.queue->write(msg, writer.hwm, log_write_timeout);
 }
 
 typedef std::conditional<sizeof(time_t) == 8, int64_t, int32_t>::type tm_t;
