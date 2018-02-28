@@ -101,11 +101,12 @@ function wait_for_logs(cb)
     // once the log streams end
 }
 
+afterEach(stop);
+afterEach(wait_for_logs);
+
 describe('echoing device', function ()
 {
     before(start());
-    after(stop);
-    after(wait_for_logs);
 
     it('should receive same data sent', async function ()
     {
@@ -221,6 +222,19 @@ describe('errors', function ()
         start({cfg_dir: 'foobar'})();
     });
 
+    it('should propagate read errors', function (cb)
+    {
+        start()();
+        lora_comms.uplink.once('error', function (err)
+        {
+            expect(err.errno).to.equal(lora_comms.LoRaComms.EINVAL);
+            lora_comms.once('stop', cb);
+            lora_comms.stop();
+        });
+        lora_comms.uplink._link = 999;
+        lora_comms.uplink.read();
+    });
+
     it('should propagate write errors', function (cb)
     {
         start()();
@@ -237,9 +251,12 @@ describe('errors', function ()
     it('should propagate logging errors', function (cb)
     {
         start()();
+        let orig_get_log_message = lora_comms.log_info._get_log_message;
         lora_comms.log_info.once('error', function (err)
         {
             expect(err.message).to.equal('dummy');
+            lora_comms.log_info._get_log_message = orig_get_log_message;
+            lora_comms.log_info._read();
             lora_comms.once('stop', cb);
             lora_comms.stop();
         });
@@ -247,6 +264,32 @@ describe('errors', function ()
         {
             cb(new Error('dummy'));
         };
+    });
+
+    it('should error when data is too big', function (cb)
+    {
+        start()();
+        lora_comms.downlink.once('error', function (err)
+        {
+            expect(err.message).to.equal('not all data was written');
+            lora_comms.once('stop', cb);
+            lora_comms.stop();
+        });
+        lora_comms.downlink.write(Buffer.alloc(lora_comms.LoRaComms.send_to_buflen + 1));
+    });
+
+    it('should error if write after stopped', function (cb)
+    {
+        start()();
+        lora_comms.once('stop', function ()
+        {
+            lora_comms.downlink._write(Buffer.from('foo'), null, function (err)
+            {
+                expect(err.errno).to.equal(lora_comms.LoRaComms.EBADF);
+                cb();
+            });
+        });
+        lora_comms.stop();
     });
 });
 
