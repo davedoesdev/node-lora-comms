@@ -545,6 +545,7 @@ Napi::Object LoRaComms::Initialize(Napi::Env env, Napi::Object exports)
 
         StaticValue("EBADF", Napi::Number::New(env, EBADF)),
         StaticValue("EAGAIN", Napi::Number::New(env, EAGAIN)),
+        StaticValue("EINVAL", Napi::Number::New(env, EINVAL)),
 
         StaticValue("recv_from_buflen", Napi::Number::New(env, recv_from_buflen)),
         StaticValue("send_to_buflen", Napi::Number::New(env, send_to_buflen))

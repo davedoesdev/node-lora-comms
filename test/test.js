@@ -79,11 +79,6 @@ function start(options)
 
 function stop(cb)
 {
-    if (this && this.timeout)
-    {
-        this.timeout(30 * 1000);
-    }
-
     if (!lora_comms.active)
     {
         return cb();
@@ -225,13 +220,40 @@ describe('errors', function ()
 
         start({cfg_dir: 'foobar'})();
     });
+
+    it('should propagate write errors', function (cb)
+    {
+        start()();
+        lora_comms.uplink.once('error', function (err)
+        {
+            expect(err.errno).to.equal(lora_comms.LoRaComms.EINVAL);
+            lora_comms.once('stop', cb);
+            lora_comms.stop();
+        });
+        lora_comms.uplink._link = 999;
+        lora_comms.uplink.write('foobar');
+    });
+
+    it('should propagate logging errors', function (cb)
+    {
+        start()();
+        lora_comms.log_info.once('error', function (err)
+        {
+            expect(err.message).to.equal('dummy');
+            lora_comms.once('stop', cb);
+            lora_comms.stop();
+        });
+        lora_comms.log_info._get_log_message = function (s, us, cb)
+        {
+            cb(new Error('dummy'));
+        };
+    });
 });
 
 describe('logging', function ()
 {
     it('should be able to end log streams', function (cb)
     {
-        this.timeout(30 * 1000);
         lora_comms.once('logging_stop', function ()
         {
             lora_comms.once('stop', cb);
@@ -244,11 +266,10 @@ describe('logging', function ()
     });
 });
 
-describe('start multiple times', function ()
+describe('multiple calls', function ()
 {
     it('should be able to start twice', function (cb)
     {
-        this.timeout(30 * 1000);
         start()();
         lora_comms.start();
         lora_comms.once('stop', cb);
@@ -257,7 +278,6 @@ describe('start multiple times', function ()
 
     it('should be able to start logging twice', function (cb)
     {
-        this.timeout(30 * 1000);
         start()();
         lora_comms.start_logging();
         lora_comms.once('stop', cb);
@@ -269,7 +289,6 @@ describe('no streams', function ()
 {
     it('should be able to disable stream creation', function (cb)
     {
-        this.timeout(30 * 1000);
         start({ no_streams: true })();
         expect(lora_comms.uplink).to.be.null;
         expect(lora_comms.downlink).to.be.null;
