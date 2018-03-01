@@ -483,18 +483,14 @@ int LoRaComms::Logger(FILE *stream, const char *format, va_list ap)
     std::vector<char> msg(log_max_msg_size);
     vsnprintf(msg.data(), log_max_msg_size, format, ap);
 
+    auto log = &log_error;
+
     if (stream == stdout)
     {
-        return log_info.write(msg, log_write_hwm, log_write_timeout);
+        log = &log_info;
     }
 
-    if (stream == stderr)
-    {
-        return log_error.write(msg, log_write_hwm, log_write_timeout);
-    }
-
-    errno = EINVAL;
-    return -1;
+    return log->write(msg, log_write_hwm, log_write_timeout);
 }
 
 typedef std::conditional<sizeof(time_t) == 8, int64_t, int32_t>::type tm_t;
