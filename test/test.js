@@ -339,3 +339,30 @@ describe('no streams', function ()
         lora_comms.stop();
     });
 });
+
+describe('timeout', function ()
+{
+    it('should check log for messages', function (cb)
+    {
+        start({ no_streams: true })();
+        lora_comms.LoRaComms.get_log_error_message(0, 0, (err, r) =>
+        {
+            expect(err.errno).to.equal(lora_comms.LoRaComms.EAGAIN);
+            expect(r).to.equal('');
+            lora_comms.once('stop', cb);
+            lora_comms.stop();
+        });
+    });
+
+    it('should timeout reading log messages', function (cb)
+    {
+        start({ no_streams: true })();
+        lora_comms.LoRaComms.get_log_error_message(0, 1, (err, r) =>
+        {
+            expect(err.errno).to.equal(lora_comms.LoRaComms.EAGAIN);
+            expect(r).to.equal('');
+            lora_comms.once('stop', cb);
+            lora_comms.stop();
+        });
+    });
+});
