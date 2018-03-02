@@ -58,27 +58,15 @@ public:
 
         if ((hwm > 0) && (size >= hwm))
         {
-            // wait until buffered data size < hwm
-            auto pred = [this, hwm]
+            int err = wait(timeout, lock, send_cv, [this, hwm]
             {
-                return closed || (this->size < hwm);
-            };
+                // wait until buffered data size < hwm
+                return closed || (size < hwm);
+            });
 
-            if (timeout < Duration::zero())
+            if (err != 0)
             {
-                // timeout < 0 means block
-                send_cv.wait(lock, pred);
-            }
-            else if ((timeout == Duration::zero()) ||
-                     !send_cv.wait_for(lock, timeout, pred))
-            {
-                errno = EAGAIN;
-                return -1;
-            }
-
-            if (closed)
-            {
-                errno = EBADF;
+                errno = err;
                 return -1;
             }
         }
@@ -110,26 +98,15 @@ public:
                 return -1;
             }
 
-            auto pred = [this]
+            int err = wait(timeout, lock, recv_cv, [this]
             {
-                return closed || !this->q.empty();
-            };
+                // wait until queue isn't empty
+                return closed || !q.empty();
+            });
 
-            if (timeout < Duration::zero())
+            if (err != 0)
             {
-                // timeout < 0 means block
-                recv_cv.wait(lock, pred);
-            }
-            else if ((timeout == Duration::zero()) ||
-                     !recv_cv.wait_for(lock, timeout, pred))
-            {
-                errno = EAGAIN;
-                return -1;
-            }
-
-            if (closed)
-            {
-                errno = EBADF;
+                errno = err;
                 return -1;
             }
         }
@@ -143,6 +120,31 @@ public:
     }
 
 private:
+    template<class Predicate>
+    int wait(const Duration &timeout,
+             std::unique_lock<std::mutex>& lock,
+             std::condition_variable& cv,
+             Predicate pred)
+    {
+        if (timeout < Duration::zero())
+        {
+            // timeout < 0 means block
+            cv.wait(lock, pred);
+        }
+        else if ((timeout == Duration::zero()) ||
+                 !cv.wait_for(lock, timeout, pred))
+        {
+            return EAGAIN;
+        }
+
+        if (closed)
+        {
+            return EBADF;
+        }
+
+        return 0;
+    }
+
     std::mutex m;
     std::condition_variable send_cv, recv_cv;
     queue_t q;
