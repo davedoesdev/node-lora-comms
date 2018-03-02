@@ -228,8 +228,7 @@ describe('errors', function ()
         lora_comms.uplink.once('error', function (err)
         {
             expect(err.errno).to.equal(lora_comms.LoRaComms.EINVAL);
-            lora_comms.once('stop', cb);
-            lora_comms.stop();
+            cb();
         });
         lora_comms.uplink._link = 999;
         lora_comms.uplink.read();
@@ -241,8 +240,7 @@ describe('errors', function ()
         lora_comms.uplink.once('error', function (err)
         {
             expect(err.errno).to.equal(lora_comms.LoRaComms.EINVAL);
-            lora_comms.once('stop', cb);
-            lora_comms.stop();
+            cb();
         });
         lora_comms.uplink._link = 999;
         lora_comms.uplink.write('foobar');
@@ -257,8 +255,7 @@ describe('errors', function ()
             expect(err.message).to.equal('dummy');
             lora_comms.log_info._get_log_message = orig_get_log_message;
             lora_comms.log_info._read();
-            lora_comms.once('stop', cb);
-            lora_comms.stop();
+            cb();
         });
         lora_comms.log_info._get_log_message = function (s, us, cb)
         {
@@ -272,8 +269,7 @@ describe('errors', function ()
         lora_comms.downlink.once('error', function (err)
         {
             expect(err.message).to.equal('not all data was written');
-            lora_comms.once('stop', cb);
-            lora_comms.stop();
+            cb();
         });
         lora_comms.downlink.write(Buffer.alloc(lora_comms.LoRaComms.send_to_buflen + 1));
     });
@@ -297,11 +293,7 @@ describe('logging', function ()
 {
     it('should be able to end log streams', function (cb)
     {
-        lora_comms.once('logging_stop', function ()
-        {
-            lora_comms.once('stop', cb);
-            lora_comms.stop();
-        });
+        lora_comms.once('logging_stop', cb);
         start()();
         expect(lora_comms.uplink).not.to.be.undefined;
         expect(lora_comms.downlink).not.to.be.undefined;
@@ -342,6 +334,30 @@ describe('no streams', function ()
 
 describe('timeout', function ()
 {
+    it('should check for messages', function (cb)
+    {
+        start({ no_streams: true })();
+        let buf = Buffer.alloc(lora_comms.LoRaComms.recv_from_buflen);
+        lora_comms.LoRaComms.recv_from(lora_comms.LoRaComms.uplink, buf, 0, 0, (err, r) =>
+        {
+            expect(err.errno).to.equal(lora_comms.LoRaComms.EAGAIN);
+            expect(r).to.equal(-1);
+            cb();
+        });
+    });
+
+    it('should timeout reading messages', function (cb)
+    {
+        start({ no_streams: true })();
+        let buf = Buffer.alloc(lora_comms.LoRaComms.recv_from_buflen);
+        lora_comms.LoRaComms.recv_from(lora_comms.LoRaComms.uplink, buf, 0, 1, (err, r) =>
+        {
+            expect(err.errno).to.equal(lora_comms.LoRaComms.EAGAIN);
+            expect(r).to.equal(-1);
+            cb();
+        });
+    });
+
     it('should check log for messages', function (cb)
     {
         start({ no_streams: true })();
@@ -349,8 +365,7 @@ describe('timeout', function ()
         {
             expect(err.errno).to.equal(lora_comms.LoRaComms.EAGAIN);
             expect(r).to.equal('');
-            lora_comms.once('stop', cb);
-            lora_comms.stop();
+            cb();
         });
     });
 
@@ -361,8 +376,7 @@ describe('timeout', function ()
         {
             expect(err.errno).to.equal(lora_comms.LoRaComms.EAGAIN);
             expect(r).to.equal('');
-            lora_comms.once('stop', cb);
-            lora_comms.stop();
+            cb();
         });
     });
 });
