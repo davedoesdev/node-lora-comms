@@ -7,7 +7,10 @@
 
 using namespace std::chrono_literals;
 
+// LoRaComms has no instance methods so we never create an instance
+//LCOV_EXCL_START
 class LoRaComms : public Napi::ObjectWrap<LoRaComms>
+//LCOV_EXCL_STOP
 {
 public:
     LoRaComms(const Napi::CallbackInfo& info);
@@ -42,10 +45,13 @@ private:
                                   const uint32_t arg);
 };
 
+// LoRaComms has no instance methods so we never create an instance
+//LCOV_EXCL_START
 LoRaComms::LoRaComms(const Napi::CallbackInfo& info) :
     Napi::ObjectWrap<LoRaComms>(info)
 {
 }
+//LCOV_EXCL_STOP
 
 Napi::Error ErrnoError(const Napi::Env& env, const int errnum)
 {
@@ -115,6 +121,15 @@ public:
         buffer_ref(Napi::Persistent(buffer))
     {
     }
+
+// Two versions of this are present in coverage, ~CommsAsyncWorker and
+// ~CommsAsyncWorker.2. Only the latter gets called which leaves the former
+// uncovered. The child classes' destructors are called (both versions).
+//LCOV_EXCL_START
+    ~CommsAsyncWorker()
+    {
+    }
+//LCOV_EXCL_STOP
 
 protected:
     virtual ssize_t Communicate() = 0;

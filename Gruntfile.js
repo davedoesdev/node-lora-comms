@@ -14,7 +14,7 @@ module.exports = function (grunt)
             },
 
             cover_init: {
-                cmd: 'lcov --zerocounters --directory build && lcov --capture --init --directory build -o coverage/lcov_base.info'
+                cmd: 'lcov --rc lcov_branch_coverage=0 --zerocounters --directory build && lcov --rc lcov_branch_coverage=0 --capture --init --directory build -o coverage/lcov_base.info'
             },
 
             cover: {
@@ -22,16 +22,16 @@ module.exports = function (grunt)
             },
 
             cover_lcov: {
-                cmd: "./node_modules/.bin/nyc report -r lcovonly && lcov --capture --directory build --output-file coverage/lcov_addon.info && lcov --add-tracefile coverage/lcov.info --add-tracefile coverage/lcov_base.info --add-tracefile coverage/lcov_addon.info --output-file coverage/lcov.info && lcov --remove coverage/lcov.info '/usr/*' $PWD/'node_modules/*' --output-file coverage/lcov.info"
+                cmd: "./node_modules/.bin/nyc report -r lcovonly && lcov --rc lcov_branch_coverage=0 --capture --directory build --output-file coverage/lcov_addon.info && lcov --rc lcov_branch_coverage=1 --add-tracefile coverage/lcov.info --add-tracefile coverage/lcov_base.info --add-tracefile coverage/lcov_addon.info --output-file coverage/lcov.info && lcov --rc lcov_branch_coverage=1 --remove coverage/lcov.info '/usr/*' $PWD/'node_modules/*' --output-file coverage/lcov.info"
             },
 
             cover_report: {
-                cmd: 'genhtml --demangle-cpp -o coverage/lcov-report coverage/lcov.info'
+                cmd: 'genhtml --rc lcov_branch_coverage=1 --demangle-cpp -o coverage/lcov-report coverage/lcov.info'
             },
 
             cover_check: {
                 // lines% functions% branches%
-                cmd: "if [ \"$(lcov --list coverage/lcov.info | grep Total | grep -o '[0-9.]\\+%' | tr '\\n' ' ')\" != '100% 100% 100% ' ]; then exit 1; fi"
+                cmd: "if [ \"$(lcov --rc lcov_branch_coverage=1 --list coverage/lcov.info | grep Total | grep -o '[0-9.]\\+%' | tr '\\n' ' ')\" != '100% 100% 100% ' ]; then exit 1; fi"
             },
 
             coveralls: {

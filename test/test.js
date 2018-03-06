@@ -63,9 +63,39 @@ function start(options)
     
     return function ()
     {
-        lora_comms.start_logging();
-        lora_comms.log_info.pipe(process.stdout);
-        lora_comms.log_error.pipe(process.stderr);
+        lora_comms.start_logging(options);
+
+        if (options.highWaterMark)
+        {
+            lora_comms.log_info.on('readable', function ()
+            {
+                process.nextTick(() =>
+                {
+                    let data;
+                    while ((data = this.read()) !== null)
+                    {
+                        process.stdout.write(data.toString());
+                    }
+                });
+            });
+
+            lora_comms.log_error.on('readable', function ()
+            {
+                process.nextTick(() =>
+                {
+                    let data;
+                    while ((data = this.read()) !== null)
+                    {
+                        process.stderr.write(data.toString());
+                    }
+                });
+            });
+        }
+        else
+        {
+            lora_comms.log_info.pipe(process.stdout);
+            lora_comms.log_error.pipe(process.stderr);
+        }
 
         lora_comms.start(options);
 
@@ -106,11 +136,11 @@ afterEach(wait_for_logs);
 
 describe('echoing device', function ()
 {
-    before(start());
+    this.timeout(60 * 60 * 1000);
 
-    it('should receive same data sent', async function ()
+    async function echo(options)
     {
-        this.timeout(60 * 60 * 1000);
+        start(options)();
 
         await wait_for(downlink, pkts.PULL_DATA);
 
@@ -206,6 +236,19 @@ describe('echoing device', function ()
             expect(tx_ack[1]).to.equal(header[1]);
             expect(tx_ack[2]).to.equal(header[2]);
         }
+    }
+
+    it('should receive same data sent', async function()
+    {
+        await echo();
+    });
+
+    describe('high-water mark 1', function ()
+    {
+        it('should receive same data sent', async function()
+        {
+            await echo({ highWaterMark: 1 });
+        });
     });
 });
 
