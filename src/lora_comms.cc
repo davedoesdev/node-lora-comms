@@ -18,8 +18,6 @@ public:
     static Napi::Object Initialize(Napi::Env env, Napi::Object exports);
 
 private:
-    friend class StartAsyncWorker;
-
     static void Start(const Napi::CallbackInfo& info);
     static void Stop(const Napi::CallbackInfo& info);
     static void Reset(const Napi::CallbackInfo& info);
@@ -36,10 +34,10 @@ private:
     static void ResetLogging(const Napi::CallbackInfo& info);
     static void GetLogInfoMessage(const Napi::CallbackInfo& info);
     static void GetLogErrorMessage(const Napi::CallbackInfo& info);
-    static void SetLogMaxMessageSize(const Napi::CallbackInfo& info);
     static void SetLogWriteHWM(const Napi::CallbackInfo& info);
     static void SetLogWriteTimeout(const Napi::CallbackInfo& info);
-    static int Logger(FILE *stream, const char *format, va_list ap);
+    static void SetLogMaxMessageSize(const Napi::CallbackInfo& info);
+    static Napi::Value GetLogMaxMessageSize(const Napi::CallbackInfo& info);
 
     static struct timeval TimeVal(const Napi::CallbackInfo& info,
                                   const uint32_t arg);
@@ -264,17 +262,21 @@ class LogAsyncWorker : public Napi::AsyncWorker
 public:
     LogAsyncWorker(const Napi::Function& callback,
                    get_log_message_fn get_log_message, 
+                   const Napi::Buffer<uint8_t>& buffer,
                    const struct timeval& timeout) :
         Napi::AsyncWorker(callback),
         get_log_message(get_log_message),
-        timeout(timeout)
+        buf(buffer.Data()),
+        len(buffer.Length()),
+        timeout(timeout),
+        buffer_ref(Napi::Persistent(buffer))
     {
     }
 
 protected:
     void Execute() override
     {
-        result = get_log_message(msg, &timeout);
+        result = get_log_message(static_cast<char*>(buf), len, &timeout);
         if (result < 0)
         {
             errnum = errno;
@@ -289,37 +291,36 @@ protected:
             std::initializer_list<napi_value>
             {
                 result < 0 ? ErrnoError(env, errnum).Value() : env.Null(),
-                Napi::String::New(env, msg)
+                Napi::Number::New(env, result)
             });
     }
 
 private:
     get_log_message_fn get_log_message;
+    void *buf;
+    size_t len;
     struct timeval timeout;
-    std::string msg;
+    Napi::Reference<Napi::Buffer<uint8_t>> buffer_ref;
     ssize_t result;
     int errnum;
 };
 
 void LoRaComms::GetLogInfoMessage(const Napi::CallbackInfo& info)
 {
-    (new LogAsyncWorker(info[2].As<Napi::Function>(),
+    (new LogAsyncWorker(info[3].As<Napi::Function>(),
                         get_log_info_message,
-                        TimeVal(info, 0)))
+                        info[0].As<Napi::Buffer<uint8_t>>(),
+                        TimeVal(info, 1)))
         ->Queue();
 }
 
 void LoRaComms::GetLogErrorMessage(const Napi::CallbackInfo& info)
 {
-    (new LogAsyncWorker(info[2].As<Napi::Function>(),
+    (new LogAsyncWorker(info[3].As<Napi::Function>(),
                         get_log_error_message,
-                        TimeVal(info, 0)))
+                        info[0].As<Napi::Buffer<uint8_t>>(),
+                        TimeVal(info, 1)))
         ->Queue();
-}
-
-void LoRaComms::SetLogMaxMessageSize(const Napi::CallbackInfo& info)
-{
-    set_log_max_msg_size(static_cast<uint32_t>(info[0].As<Napi::Number>()));
 }
 
 void LoRaComms::SetLogWriteHWM(const Napi::CallbackInfo& info)
@@ -331,6 +332,16 @@ void LoRaComms::SetLogWriteTimeout(const Napi::CallbackInfo& info)
 {
     struct timeval tv = TimeVal(info, 0);
     set_log_write_timeout(&tv);
+}
+
+void LoRaComms::SetLogMaxMessageSize(const Napi::CallbackInfo& info)
+{
+    set_log_max_msg_size(static_cast<uint32_t>(info[0].As<Napi::Number>()));
+}
+
+Napi::Value LoRaComms::GetLogMaxMessageSize(const Napi::CallbackInfo& info)
+{
+    return Napi::Number::New(info.Env(), get_log_max_msg_size());
 }
 
 typedef std::conditional<sizeof(time_t) == 8, int64_t, int32_t>::type tm_t;
@@ -367,9 +378,10 @@ Napi::Object LoRaComms::Initialize(Napi::Env env, Napi::Object exports)
         StaticMethod("reset_logging", &ResetLogging),
         StaticMethod("get_log_info_message", &GetLogInfoMessage),
         StaticMethod("get_log_error_message", &GetLogErrorMessage),
-        StaticMethod("set_log_max_msg_size", &SetLogMaxMessageSize),
         StaticMethod("set_log_write_hwm", &SetLogWriteHWM),
         StaticMethod("set_log_write_timeout", &SetLogWriteTimeout),
+        StaticMethod("set_log_max_msg_size", &SetLogMaxMessageSize),
+        StaticMethod("get_log_max_msg_size", &GetLogMaxMessageSize),
 
         StaticValue("EBADF", Napi::Number::New(env, EBADF)),
         StaticValue("EAGAIN", Napi::Number::New(env, EAGAIN)),
