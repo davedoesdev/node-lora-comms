@@ -108,26 +108,15 @@ class CommsAsyncWorker : public Napi::AsyncWorker
 {
 public:
     CommsAsyncWorker(const Napi::Function& callback,
-                     const int link,
                      const Napi::Buffer<uint8_t>& buffer,
                      const struct timeval& timeout) :
         Napi::AsyncWorker(callback),
-        link(link),
         buf(buffer.Data()),
         len(buffer.Length()),
         timeout(timeout),
         buffer_ref(Napi::Persistent(buffer))
     {
     }
-
-// Two versions of this are present in coverage, ~CommsAsyncWorker and
-// ~CommsAsyncWorker.2. Only the latter gets called which leaves the former
-// uncovered. The child classes' destructors are called (both versions).
-//LCOV_EXCL_START
-    ~CommsAsyncWorker()
-    {
-    }
-//LCOV_EXCL_STOP
 
 protected:
     virtual ssize_t Communicate() = 0;
@@ -153,7 +142,6 @@ protected:
             });
     }
 
-    int link;
     void *buf;
     size_t len;
     struct timeval timeout;
@@ -164,14 +152,39 @@ private:
     int errnum;
 };
 
-class RecvFromAsyncWorker : public CommsAsyncWorker
+class LinkAsyncWorker : public CommsAsyncWorker
+{
+public:
+    LinkAsyncWorker(const Napi::Function& callback,
+                    const int link,
+                    const Napi::Buffer<uint8_t>& buffer,
+                    const struct timeval& timeout) :
+        CommsAsyncWorker(callback, buffer, timeout),
+        link(link)
+    {
+    }
+/*
+// Two versions of this are present in coverage, ~CommsAsyncWorker and
+// ~CommsAsyncWorker.2. Only the latter gets called which leaves the former
+// uncovered. The child classes' destructors are called (both versions).
+//LCOV_EXCL_START
+    ~LinkAsyncWorker()
+    {
+    }
+//LCOV_EXCL_STOP
+*/
+protected:
+    int link;
+};
+
+class RecvFromAsyncWorker : public LinkAsyncWorker
 {
 public:
     RecvFromAsyncWorker(const Napi::Function& callback,
                         const int link,
                         const Napi::Buffer<uint8_t>& buffer,
                         const struct timeval& timeout) :
-        CommsAsyncWorker(callback, link, buffer, timeout)
+        LinkAsyncWorker(callback, link, buffer, timeout)
     {
     }
 
@@ -191,7 +204,7 @@ void LoRaComms::RecvFrom(const Napi::CallbackInfo& info)
         ->Queue();
 }
 
-class SendToAsyncWorker : public CommsAsyncWorker
+class SendToAsyncWorker : public LinkAsyncWorker
 {
 public:
     SendToAsyncWorker(const Napi::Function& callback,
@@ -199,7 +212,7 @@ public:
                       const Napi::Buffer<uint8_t>& buffer,
                       ssize_t hwm,
                       const struct timeval& timeout) :
-        CommsAsyncWorker(callback, link, buffer, timeout),
+        LinkAsyncWorker(callback, link, buffer, timeout),
         hwm(hwm)
     {
     }
@@ -257,52 +270,26 @@ void LoRaComms::ResetLogging(const Napi::CallbackInfo& info)
     reset_log_queues();
 }
 
-class LogAsyncWorker : public Napi::AsyncWorker
+class LogAsyncWorker : public CommsAsyncWorker
 {
 public:
     LogAsyncWorker(const Napi::Function& callback,
                    get_log_message_fn get_log_message, 
                    const Napi::Buffer<uint8_t>& buffer,
                    const struct timeval& timeout) :
-        Napi::AsyncWorker(callback),
-        get_log_message(get_log_message),
-        buf(buffer.Data()),
-        len(buffer.Length()),
-        timeout(timeout),
-        buffer_ref(Napi::Persistent(buffer))
+        CommsAsyncWorker(callback, buffer, timeout),
+        get_log_message(get_log_message)
     {
     }
 
 protected:
-    void Execute() override
+    ssize_t Communicate() override
     {
-        result = get_log_message(static_cast<char*>(buf), len, &timeout);
-        if (result < 0)
-        {
-            errnum = errno;
-        }
-    }
-
-    void OnOK() override
-    {
-        Napi::Env env = Env();
-        Callback().MakeCallback(
-            Receiver().Value(),
-            std::initializer_list<napi_value>
-            {
-                result < 0 ? ErrnoError(env, errnum).Value() : env.Null(),
-                Napi::Number::New(env, result)
-            });
+        return get_log_message(static_cast<char*>(buf), len, &timeout);
     }
 
 private:
     get_log_message_fn get_log_message;
-    void *buf;
-    size_t len;
-    struct timeval timeout;
-    Napi::Reference<Napi::Buffer<uint8_t>> buffer_ref;
-    ssize_t result;
-    int errnum;
 };
 
 void LoRaComms::GetLogInfoMessage(const Napi::CallbackInfo& info)
