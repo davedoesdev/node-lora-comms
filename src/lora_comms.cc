@@ -3,7 +3,7 @@
 #include <queue>
 #include <chrono>
 #include <napi.h>
-#include <lora_comms.h>
+#include <lora_comms_int.h>
 
 using namespace std::chrono_literals;
 
@@ -41,6 +41,8 @@ private:
 
     static struct timeval TimeVal(const Napi::CallbackInfo& info,
                                   const uint32_t arg);
+    static enum comm_link CommLink(const Napi::CallbackInfo& info,
+                                   const uint32_t arg);
 };
 
 // LoRaComms has no instance methods so we never create an instance
@@ -169,7 +171,7 @@ public:
                     const Napi::Buffer<uint8_t>& buffer,
                     const struct timeval& timeout) :
         CommsAsyncWorker(callback, buffer, timeout),
-        link(link)
+        link(static_cast<enum comm_link>(link))
     {
     }
 
@@ -183,7 +185,7 @@ public:
 //LCOV_EXCL_STOP
 
 protected:
-    int link;
+    enum comm_link link;
 };
 
 class RecvFromAsyncWorker : public LinkAsyncWorker
@@ -248,19 +250,19 @@ void LoRaComms::SendTo(const Napi::CallbackInfo& info)
 
 void LoRaComms::SetGWSendHWM(const Napi::CallbackInfo& info)
 {
-    set_gw_send_hwm(info[0].As<Napi::Number>(), info[1].As<Napi::Number>());
+    set_gw_send_hwm(CommLink(info, 0), info[1].As<Napi::Number>());
 }
 
 void LoRaComms::SetGWSendTimeout(const Napi::CallbackInfo& info)
 {
     struct timeval tv = TimeVal(info, 1);
-    set_gw_send_timeout(info[0].As<Napi::Number>(), &tv);
+    set_gw_send_timeout(CommLink(info, 0), &tv);
 }
 
 void LoRaComms::SetGWRecvTimeout(const Napi::CallbackInfo& info)
 {
     struct timeval tv = TimeVal(info, 1);
-    set_gw_recv_timeout(info[0].As<Napi::Number>(), &tv);
+    set_gw_recv_timeout(CommLink(info, 0), &tv);
 }
 
 void LoRaComms::StartLogging(const Napi::CallbackInfo& info)
@@ -349,6 +351,12 @@ struct timeval LoRaComms::TimeVal(const Napi::CallbackInfo& info,
     tv.tv_sec = static_cast<tm_t>(info[arg].As<Napi::Number>());
     tv.tv_usec = static_cast<tm_t>(info[arg+1].As<Napi::Number>());
     return tv;
+}
+
+enum comm_link LoRaComms::CommLink(const Napi::CallbackInfo& info,
+                                   const uint32_t arg)
+{
+    return static_cast<enum comm_link>(info[arg].As<Napi::Number>().Int32Value());
 }
 
 Napi::Object LoRaComms::Initialize(Napi::Env env, Napi::Object exports)
