@@ -2,3 +2,4 @@
 /build
 /lora_gateway_shared*
 /packet_forwarder_shared*
+/.nyc_output
