@@ -118,6 +118,15 @@ public:
     {
     }
 
+// Two versions of this are present in coverage, ~CommsAsyncWorker and
+// ~CommsAsyncWorker.2. Only the latter gets called which leaves the former
+// uncovered. The child classes' destructors are called (both versions).
+//LCOV_EXCL_START
+    ~CommsAsyncWorker()
+    {
+    }
+//LCOV_EXCL_STOP
+
 protected:
     virtual ssize_t Communicate() = 0;
 
@@ -163,16 +172,16 @@ public:
         link(link)
     {
     }
-/*
-// Two versions of this are present in coverage, ~CommsAsyncWorker and
-// ~CommsAsyncWorker.2. Only the latter gets called which leaves the former
+
+// Two versions of this are present in coverage, ~LinkAsyncWorker and
+// ~LinkAsyncWorker.2. Only the latter gets called which leaves the former
 // uncovered. The child classes' destructors are called (both versions).
 //LCOV_EXCL_START
     ~LinkAsyncWorker()
     {
     }
 //LCOV_EXCL_STOP
-*/
+
 protected:
     int link;
 };

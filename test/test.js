@@ -300,7 +300,7 @@ describe('errors', function ()
             lora_comms.log_info._read();
             cb();
         });
-        lora_comms.log_info._get_log_message = function (s, us, cb)
+        lora_comms.log_info._get_log_message = function (buf, s, us, cb)
         {
             cb(new Error('dummy'));
         };
@@ -404,10 +404,11 @@ describe('timeout', function ()
     it('should check log for messages', function (cb)
     {
         start({ no_streams: true })();
-        lora_comms.LoRaComms.get_log_error_message(0, 0, (err, r) =>
+        let buf = Buffer.alloc(lora_comms.LoRaComms.get_log_max_msg_size());
+        lora_comms.LoRaComms.get_log_error_message(buf, 0, 0, (err, r) =>
         {
             expect(err.errno).to.equal(lora_comms.LoRaComms.EAGAIN);
-            expect(r).to.equal('');
+            expect(r).to.equal(-1);
             cb();
         });
     });
@@ -415,10 +416,11 @@ describe('timeout', function ()
     it('should timeout reading log messages', function (cb)
     {
         start({ no_streams: true })();
-        lora_comms.LoRaComms.get_log_error_message(0, 1, (err, r) =>
+        let buf = Buffer.alloc(lora_comms.LoRaComms.get_log_max_msg_size());
+        lora_comms.LoRaComms.get_log_error_message(buf, 0, 1, (err, r) =>
         {
             expect(err.errno).to.equal(lora_comms.LoRaComms.EAGAIN);
-            expect(r).to.equal('');
+            expect(r).to.equal(-1);
             cb();
         });
     });
