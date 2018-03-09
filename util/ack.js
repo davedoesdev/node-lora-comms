@@ -1,3 +1,5 @@
+"use strict";
+
 const lora_comms = require('..'),
       path = require('path'),
       { Transform } = require('stream'),
