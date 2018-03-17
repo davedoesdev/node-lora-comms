@@ -1,0 +1,100 @@
+= node-lora-comms
+:prewrap!:
+
+Node.js module for reading and writing LoRa packets. It uses a
+https://github.com/davedoesdev/packet_forwarder_shared[shared library] which
+reads and writes packets directly from the LoRa radio to memory.
+
+You can read and write packets using standard Node.js
+https://nodejs.org/dist/latest-v9.x/docs/api/stream.html#stream_class_stream_duplex[Duplex] streams.
+
+API documentation is available link:docs/index.html[here].
+
+The packet format is the same as SemTech's packet forwarder, described in
+sections 3-6 of https://github.com/davedoesdev/packet_forwarder_shared/blob/master/PROTOCOL.TXT[this document]. 
+
+You can use Anthony Kirby's excellent https://github.com/anthonykirby/lora-packet[packet decoder and encoder] to help parse and construct packet data.
+
+## Example
+
+This program works in conjunction with a link:test/node_lora_comms_test.ino[corresponding Arduino sketch] (tested on a http://support.sodaq.com/sodaq-one/explorer/[SODAQ Explorer]).
+
+It reads 12 byte packets from the LoRa radio, leaves the first 6 bytes
+unchanged and randomizes the randomizes the last 6 bytes. It then sends the
+packet back to the radio. The Explorer does the same but randomizes the first
+6 byes it receives, leaving the last 6 bytes unchanged.
+
+Each side then checks whether it gets back the bytes it randomized in the
+previous packet it sent.
+
+[source,javascript]
+.example.js
+----
+WIP
+----
+
+Other examples can be found in the link:util[util] directory. It contains
+Javascript versions of the Semtech `link:util/sink.js[sink]`,
+`link:util/ack.js[ack]` and `link:util/tx_test.js[tx_test]` utilities.
+
+== Installation
+
+[source,bash]
+----
+npm install lora-comms
+----
+
+== IMST iC880A-SPI reset
+
+If you're using an IMST iC880A-SPI, it needs to be reset after it's powered up.
+
+My iC880A-SPI is connected to a Pi via a
+https://shop.coredump.ch/product/ic880a-lorawan-gateway-backplane/[backplane]
+which brings the reset line out on GPIO 25. I run the following shell script
+to perform the reset:
+
+[source,sh]
+.iC880A-SPI_reset.sh
+----
+echo "25" > /sys/class/gpio/export
+echo "out" > /sys/class/gpio/gpio25/direction
+echo "1" > /sys/class/gpio/gpio25/value
+sleep 5
+echo "0" > /sys/class/gpio/gpio25/value
+sleep 1
+echo "0" > /sys/class/gpio/gpio25/value
+----
+
+== Test
+
+You'll need a LoRa device running link:test/node_lora_comms_test.ino[] (tested
+on a SODAQ Explorer). Then run:
+
+[source,bash]
+----
+grunt test
+----
+
+== Lint
+
+[source,bash]
+----
+grunt lint
+----
+
+== Coverage
+
+You'll need a LoRa device running link:test/node_lora_comms_test.ino[] (tested
+on a SODAQ Explorer). Then run:
+
+[source,bash]
+----
+grunt coverage
+----
+
+https://istanbul.js.org/[Istanbul] results are available
+http://rawgit.davedoesdev.com/davedoesdev/node-lora-comms/master/coverage/lcov-report/index.html[here].
+
+== Licence
+
+link:LICENCE[MIT]

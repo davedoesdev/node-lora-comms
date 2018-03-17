@@ -1,7 +1,6 @@
 "use strict";
 
 const lora_comms = require('..'),
-      path = require('path'),
       crypto = require('crypto'),
       { Transform } = require('stream'),
       argv = require('yargs').command(
@@ -10,9 +9,7 @@ const lora_comms = require('..'),
           .option('c', {
               alias: 'cfg_dir',
               type: 'string',
-              describe: 'configuration directory',
-              default: path.join(__dirname, '..',
-                                 'packet_forwarder_shared', 'lora_pkt_fwd')
+              describe: 'configuration directory'
           })
           .option('f', {
               alias: 'f_target',

@@ -4,7 +4,6 @@
 
 const lora_comms = require('..'),
       lora_packet = require('lora-packet'),
-      path = require('path'),
       crypto = require('crypto'),
       aw = require('awaitify-stream'),
       expect = require('chai').expect,
@@ -57,12 +56,6 @@ async function wait_for(link, pkt)
 
 function start(options)
 {
-    options = Object.assign(
-    {
-        cfg_dir: path.join(__dirname, '..',
-                           'packet_forwarder_shared', 'lora_pkt_fwd')
-    }, options);
-    
     return function ()
     {
         lora_comms.start_logging(options);
@@ -157,86 +150,87 @@ describe('echoing device', function ()
             {
                 continue;
             }
-            let rxpk = payload.rxpk[0];
-
-            let recv_data = Buffer.from(rxpk.data, 'base64');
-            let decoded = lora_packet.fromWire(recv_data);
-            let buffers = decoded.getBuffers();
-
-            if (!buffers.DevAddr.equals(DevAddr))
+            for (let rxpk of payload.rxpk)
             {
-                continue;
+                let recv_data = Buffer.from(rxpk.data, 'base64');
+                let decoded = lora_packet.fromWire(recv_data);
+                let buffers = decoded.getBuffers();
+
+                if (!buffers.DevAddr.equals(DevAddr))
+                {
+                    continue;
+                }
+
+                expect(lora_packet.verifyMIC(decoded, NwkSKey)).to.be.true;
+
+                let recv_payload = lora_packet.decrypt(decoded, AppSKey, NwkSKey);
+
+                if (recv_payload.length !== payload_size)
+                {
+                    continue;
+                }
+
+                if (recv_payload.equals(send_payload))
+                {
+                    // Shouldn't happen because send on reverse polarity
+                    console.error('Received packet we sent');
+                    continue;
+                }
+
+                if (recv_payload.compare(send_payload,
+                                         payload_size/2,
+                                         payload_size,
+                                         payload_size/2,
+                                         payload_size) === 0)
+                {
+                    return;
+                }
+
+                send_payload = Buffer.concat([recv_payload.slice(0, payload_size/2),
+                                              crypto.randomBytes(payload_size/2)]);
+
+                let encoded = lora_packet.fromFields({
+                    MType: 'Unconfirmed Data Down',
+                    DevAddr: DevAddr,
+                    FCnt: count++,
+                    FCtrl: {
+                        ADR: false,
+                        ACK: false,
+                        ADRACKReq: false,
+                        FPending: false
+                    },
+                    FPort: 1,
+                    payload: send_payload
+                }, AppSKey, NwkSKey);
+
+                let send_data = encoded.getPHYPayload();
+
+                let header = Buffer.alloc(4);
+                header[0] = PROTOCOL_VERSION;
+                crypto.randomFillSync(header, 1, 2);
+                header[3] = pkts.PULL_RESP;
+
+                let txpk = {
+                    tmst: rxpk.tmst + 1000000, // first receive window (1s)
+                    freq: rxpk.freq,
+                    rfch: 0, // only 0 can transmit
+                    //powe: 14,
+                    modu: rxpk.modu,
+                    datr: rxpk.datr,
+                    codr: rxpk.codr,
+                    ipol: true,
+                    //prea: 8,
+                    size: send_data.length,
+                    data: send_data.toString('base64')
+                };
+
+                let databuf = Buffer.concat([header, Buffer.from(JSON.stringify({txpk: txpk}))]);
+                await downlink.writeAsync(databuf);
+
+                let tx_ack = await wait_for(downlink, pkts.TX_ACK);
+                expect(tx_ack[1]).to.equal(header[1]);
+                expect(tx_ack[2]).to.equal(header[2]);
             }
-
-            expect(lora_packet.verifyMIC(decoded, NwkSKey)).to.be.true;
-
-            let recv_payload = lora_packet.decrypt(decoded, AppSKey, NwkSKey);
-
-            if (recv_payload.length !== payload_size)
-            {
-                continue;
-            }
-
-            if (recv_payload.equals(send_payload))
-            {
-                // Shouldn't happen because send on reverse polarity
-                console.error('Received packet we sent');
-                continue;
-            }
-
-            if (recv_payload.compare(send_payload,
-                                     payload_size/2,
-                                     payload_size,
-                                     payload_size/2,
-                                     payload_size) === 0)
-            {
-                break;
-            }
-
-            send_payload = Buffer.concat([recv_payload.slice(0, payload_size/2),
-                                          crypto.randomBytes(payload_size/2)]);
-
-            let encoded = lora_packet.fromFields({
-                MType: 'Unconfirmed Data Down',
-                DevAddr: DevAddr,
-                FCnt: count++,
-                FCtrl: {
-                    ADR: false,
-                    ACK: false,
-                    ADRACKReq: false,
-                    FPending: false
-                },
-                FPort: 1,
-                payload: send_payload
-            }, AppSKey, NwkSKey);
-
-            let send_data = encoded.getPHYPayload();
-
-            let header = Buffer.alloc(4);
-            header[0] = PROTOCOL_VERSION;
-            crypto.randomFillSync(header, 1, 2);
-            header[3] = pkts.PULL_RESP;
-
-            let txpk = {
-                tmst: rxpk.tmst + 1000000, // first receive window (1s)
-                freq: rxpk.freq,
-                rfch: 0, // only 0 can transmit
-                //powe: 14,
-                modu: rxpk.modu,
-                datr: rxpk.datr,
-                codr: rxpk.codr,
-                ipol: true,
-                //prea: 8,
-                size: send_data.length,
-                data: send_data.toString('base64')
-            };
-
-            let databuf = Buffer.concat([header, Buffer.from(JSON.stringify({txpk: txpk}))]);
-            await downlink.writeAsync(databuf);
-
-            let tx_ack = await wait_for(downlink, pkts.TX_ACK);
-            expect(tx_ack[1]).to.equal(header[1]);
-            expect(tx_ack[2]).to.equal(header[2]);
         }
     }
 
