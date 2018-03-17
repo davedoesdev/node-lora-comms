@@ -8,10 +8,10 @@ reads and writes packets directly from the LoRa radio to memory.
 You can read and write packets using standard Node.js
 https://nodejs.org/dist/latest-v9.x/docs/api/stream.html#stream_class_stream_duplex[Duplex] streams.
 
-API documentation is available link:docs/index.html[here].
+API documentation is available http://rawgit.davedoesdev.com/davedoesdev/node-lora-comms/master/docs/index.html[here].
 
 The packet format is the same as SemTech's packet forwarder, described in
-sections 3-6 of https://github.com/davedoesdev/packet_forwarder_shared/blob/master/PROTOCOL.TXT[this document]. 
+sections 3-6 of https://raw.githubusercontent.com/davedoesdev/packet_forwarder_shared/master/PROTOCOL.TXT[this document]. 
 
 You can use Anthony Kirby's excellent https://github.com/anthonykirby/lora-packet[packet decoder and encoder] to help parse and construct packet data.
 
