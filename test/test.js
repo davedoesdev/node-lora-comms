@@ -60,7 +60,7 @@ function start(options)
     {
         lora_comms.start_logging(options);
 
-        if (options.highWaterMark)
+        if (options && options.highWaterMark)
         {
             lora_comms.log_info.on('readable', function ()
             {
@@ -94,7 +94,7 @@ function start(options)
 
         lora_comms.start(options);
 
-        if (!options.no_streams)
+        if (!(options && options.no_streams))
         {
             uplink = aw.createDuplexer(lora_comms.uplink);
             downlink = aw.createDuplexer(lora_comms.downlink);
