@@ -50,7 +50,6 @@ async function wait_for(link, pkt)
                 return data;
             }
         }
-
     }
 }
 
@@ -146,7 +145,7 @@ describe('echoing device', function ()
         {
             let packet = await wait_for(uplink, pkts.PUSH_DATA);
             let payload = JSON.parse(packet.slice(12));
-            if (!payload.rxpk || !payload.rxpk[0])
+            if (!payload.rxpk)
             {
                 continue;
             }
