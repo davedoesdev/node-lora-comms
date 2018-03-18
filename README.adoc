@@ -4,6 +4,7 @@
 Node.js module for reading and writing LoRa packets. It uses a
 https://github.com/davedoesdev/packet_forwarder_shared[shared library] which
 reads and writes packets directly from the LoRa radio to memory.
+Tested on a Raspberry Pi 3 Model B with an IMST iC880A-SPI.
 
 You can read and write packets using standard Node.js
 https://nodejs.org/dist/latest-v9.x/docs/api/stream.html#stream_class_stream_duplex[Duplex] streams.
