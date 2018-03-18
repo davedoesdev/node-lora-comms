@@ -1,4 +1,4 @@
-= node-lora-comms
+= node-lora-comms{nbsp}{nbsp}{nbsp}image:https://img.shields.io/npm/v/lora-comms.svg[NPM version,link=https://www.npmjs.com/package/lora-comms]
 :prewrap!:
 
 Node.js module for reading and writing LoRa packets. It uses a
