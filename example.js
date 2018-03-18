@@ -139,7 +139,7 @@ async function wait_for(link, pkt) {
 
             let tx_ack = await wait_for(downlink, pkts.TX_ACK);
             if (tx_ack.compare(header, 1, 3, 1, 3) !== 0) {
-                console.log('SUCCESS: Received matching data');
+                console.error('ERROR: tx token mismatch');
             }
         }
     }
