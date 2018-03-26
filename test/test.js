@@ -1,6 +1,6 @@
 "use strict";
 
-// Tested with a SODAQ ExpLoRer running ./node-lora-comms-test.ino
+// Tested with a SODAQ ExpLoRer running ./node_lora_comms_test.ino
 
 const lora_comms = require('..'),
       lora_packet = require('lora-packet'),
