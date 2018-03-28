@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2018-03-22 21:58:00</td>
+            <td class="headerValue">2018-03-28 07:50:40</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">44</td>
@@ -124,15 +124,15 @@
 <span class="lineNum">      53 </span>                :            : }
 <a name="54"><span class="lineNum">      54 </span>                :            : //LCOV_EXCL_STOP</a>
 <span class="lineNum">      55 </span>                :            : 
-<span class="lineNum">      56 </span>                :<span class="lineCov">         52 : Napi::Error ErrnoError(const Napi::Env&amp; env, const int errnum)</span>
+<span class="lineNum">      56 </span>                :<span class="lineCov">         41 : Napi::Error ErrnoError(const Napi::Env&amp; env, const int errnum)</span>
 <span class="lineNum">      57 </span>                :            : {
-<span class="lineNum">      58 </span>                :<span class="lineCov">         52 :     char buf[1024] = {0};</span>
-<span class="lineNum">      59 </span>                :<span class="lineCov">         52 :     auto errmsg = strerror_r(errnum, buf, sizeof(buf));</span>
+<span class="lineNum">      58 </span>                :<span class="lineCov">         41 :     char buf[1024] = {0};</span>
+<span class="lineNum">      59 </span>                :<span class="lineCov">         41 :     auto errmsg = strerror_r(errnum, buf, sizeof(buf));</span>
 <span class="lineNum">      60 </span>                :            :     static_assert(std::is_same&lt;decltype(errmsg), char*&gt;::value,
 <span class="lineNum">      61 </span>                :            :                   &quot;strerror_r must return char*&quot;);
-<span class="lineNum">      62 </span>                :<span class="lineCov">         52 :     Napi::Error err = Napi::Error::New(env, errmsg ? errmsg : std::to_string(errnum));</span>
-<span class="lineNum">      63 </span>                :<span class="lineCov">         52 :     err.Set(&quot;errno&quot;, Napi::Number::New(env, errnum));</span>
-<span class="lineNum">      64 </span>                :<span class="lineCov">         52 :     return err;</span>
+<span class="lineNum">      62 </span>                :<span class="lineCov">         41 :     Napi::Error err = Napi::Error::New(env, errmsg ? errmsg : std::to_string(errnum));</span>
+<span class="lineNum">      63 </span>                :<span class="lineCov">         41 :     err.Set(&quot;errno&quot;, Napi::Number::New(env, errnum));</span>
+<span class="lineNum">      64 </span>                :<span class="lineCov">         41 :     return err;</span>
 <a name="65"><span class="lineNum">      65 </span>                :            : }</a>
 <span class="lineNum">      66 </span>                :            : 
 <span class="lineNum">      67 </span>                :<span class="lineCov">         32 : class StartAsyncWorker : public Napi::AsyncWorker</span>
@@ -180,16 +180,16 @@
 <span class="lineNum">     109 </span>                :            : class CommsAsyncWorker : public Napi::AsyncWorker
 <a name="110"><span class="lineNum">     110 </span>                :            : {</a>
 <span class="lineNum">     111 </span>                :            : public:
-<span class="lineNum">     112 </span>                :<span class="lineCov">        860 :     CommsAsyncWorker(const Napi::Function&amp; callback,</span>
+<span class="lineNum">     112 </span>                :<span class="lineCov">        856 :     CommsAsyncWorker(const Napi::Function&amp; callback,</span>
 <span class="lineNum">     113 </span>                :            :                      const Napi::Buffer&lt;uint8_t&gt;&amp; buffer,
-<span class="lineNum">     114 </span>                :<span class="lineCov">        860 :                      const struct timeval&amp; timeout) :</span>
+<span class="lineNum">     114 </span>                :<span class="lineCov">        856 :                      const struct timeval&amp; timeout) :</span>
 <span class="lineNum">     115 </span>                :            :         Napi::AsyncWorker(callback),
-<span class="lineNum">     116 </span>                :<span class="lineCov">        860 :         buf(buffer.Data()),</span>
-<span class="lineNum">     117 </span>                :<span class="lineCov">        860 :         len(buffer.Length()),</span>
+<span class="lineNum">     116 </span>                :<span class="lineCov">        856 :         buf(buffer.Data()),</span>
+<span class="lineNum">     117 </span>                :<span class="lineCov">        856 :         len(buffer.Length()),</span>
 <span class="lineNum">     118 </span>                :            :         timeout(timeout),
-<span class="lineNum">     119 </span>                :<span class="lineCov">       2580 :         buffer_ref(Napi::Persistent(buffer))</span>
+<span class="lineNum">     119 </span>                :<span class="lineCov">       2568 :         buffer_ref(Napi::Persistent(buffer))</span>
 <span class="lineNum">     120 </span>                :            :     {
-<span class="lineNum">     121 </span>                :<span class="lineCov">        860 :     }</span>
+<span class="lineNum">     121 </span>                :<span class="lineCov">        856 :     }</span>
 <span class="lineNum">     122 </span>                :            : 
 <span class="lineNum">     123 </span>                :            : // Two versions of this are present in coverage, ~CommsAsyncWorker and
 <span class="lineNum">     124 </span>                :            : // ~CommsAsyncWorker.2. Only the latter gets called which leaves the former
@@ -203,26 +203,26 @@
 <span class="lineNum">     132 </span>                :            : protected:
 <a name="133"><span class="lineNum">     133 </span>                :            :     virtual ssize_t Communicate() = 0;</a>
 <span class="lineNum">     134 </span>                :            : 
-<span class="lineNum">     135 </span>                :<span class="lineCov">        860 :     void Execute() override</span>
+<span class="lineNum">     135 </span>                :<span class="lineCov">        856 :     void Execute() override</span>
 <span class="lineNum">     136 </span>                :            :     {
-<span class="lineNum">     137 </span>                :<span class="lineCov">        860 :         result = Communicate();</span>
-<span class="lineNum">     138 </span>                :<span class="lineCov">        860 :         if (result &lt; 0)</span>
+<span class="lineNum">     137 </span>                :<span class="lineCov">        856 :         result = Communicate();</span>
+<span class="lineNum">     138 </span>                :<span class="lineCov">        856 :         if (result &lt; 0)</span>
 <span class="lineNum">     139 </span>                :            :         {
-<span class="lineNum">     140 </span>                :<span class="lineCov">         52 :             errnum = errno;</span>
+<span class="lineNum">     140 </span>                :<span class="lineCov">         41 :             errnum = errno;</span>
 <span class="lineNum">     141 </span>                :            :         }
-<a name="142"><span class="lineNum">     142 </span>                :<span class="lineCov">        860 :     }</span></a>
+<a name="142"><span class="lineNum">     142 </span>                :<span class="lineCov">        856 :     }</span></a>
 <span class="lineNum">     143 </span>                :            : 
-<span class="lineNum">     144 </span>                :<span class="lineCov">        860 :     void OnOK() override</span>
+<span class="lineNum">     144 </span>                :<span class="lineCov">        856 :     void OnOK() override</span>
 <span class="lineNum">     145 </span>                :            :     {
-<span class="lineNum">     146 </span>                :<span class="lineCov">        860 :         Napi::Env env = Env();</span>
-<span class="lineNum">     147 </span>                :<span class="lineCov">        860 :         Callback().MakeCallback(</span>
-<span class="lineNum">     148 </span>                :<span class="lineCov">       1720 :             Receiver().Value(),</span>
-<span class="lineNum">     149 </span>                :<span class="lineCov">       2580 :             std::initializer_list&lt;napi_value&gt;</span>
+<span class="lineNum">     146 </span>                :<span class="lineCov">        856 :         Napi::Env env = Env();</span>
+<span class="lineNum">     147 </span>                :<span class="lineCov">        856 :         Callback().MakeCallback(</span>
+<span class="lineNum">     148 </span>                :<span class="lineCov">       1712 :             Receiver().Value(),</span>
+<span class="lineNum">     149 </span>                :<span class="lineCov">       2568 :             std::initializer_list&lt;napi_value&gt;</span>
 <span class="lineNum">     150 </span>                :            :             {
-<span class="lineNum">     151 </span>                :<span class="lineCov">       1720 :                 result &lt; 0 ? ErrnoError(env, errnum).Value() : env.Null(),</span>
-<span class="lineNum">     152 </span>                :<span class="lineCov">       1720 :                 Napi::Number::New(env, result)</span>
-<span class="lineNum">     153 </span>                :<span class="lineCov">       3440 :             });</span>
-<span class="lineNum">     154 </span>                :<span class="lineCov">        860 :     }</span>
+<span class="lineNum">     151 </span>                :<span class="lineCov">       1712 :                 result &lt; 0 ? ErrnoError(env, errnum).Value() : env.Null(),</span>
+<span class="lineNum">     152 </span>                :<span class="lineCov">       1712 :                 Napi::Number::New(env, result)</span>
+<span class="lineNum">     153 </span>                :<span class="lineCov">       3424 :             });</span>
+<span class="lineNum">     154 </span>                :<span class="lineCov">        856 :     }</span>
 <span class="lineNum">     155 </span>                :            : 
 <span class="lineNum">     156 </span>                :            :     void *buf;
 <span class="lineNum">     157 </span>                :            :     size_t len;
@@ -237,14 +237,14 @@
 <span class="lineNum">     166 </span>                :            : class LinkAsyncWorker : public CommsAsyncWorker
 <a name="167"><span class="lineNum">     167 </span>                :            : {</a>
 <span class="lineNum">     168 </span>                :            : public:
-<span class="lineNum">     169 </span>                :<span class="lineCov">         49 :     LinkAsyncWorker(const Napi::Function&amp; callback,</span>
+<span class="lineNum">     169 </span>                :<span class="lineCov">         42 :     LinkAsyncWorker(const Napi::Function&amp; callback,</span>
 <span class="lineNum">     170 </span>                :            :                     const int link,
 <span class="lineNum">     171 </span>                :            :                     const Napi::Buffer&lt;uint8_t&gt;&amp; buffer,
-<span class="lineNum">     172 </span>                :<span class="lineCov">         49 :                     const struct timeval&amp; timeout) :</span>
+<span class="lineNum">     172 </span>                :<span class="lineCov">         42 :                     const struct timeval&amp; timeout) :</span>
 <span class="lineNum">     173 </span>                :            :         CommsAsyncWorker(callback, buffer, timeout),
-<span class="lineNum">     174 </span>                :<span class="lineCov">         49 :         link(static_cast&lt;enum comm_link&gt;(link))</span>
+<span class="lineNum">     174 </span>                :<span class="lineCov">         42 :         link(static_cast&lt;enum comm_link&gt;(link))</span>
 <span class="lineNum">     175 </span>                :            :     {
-<span class="lineNum">     176 </span>                :<span class="lineCov">         49 :     }</span>
+<span class="lineNum">     176 </span>                :<span class="lineCov">         42 :     }</span>
 <span class="lineNum">     177 </span>                :            : 
 <span class="lineNum">     178 </span>                :            : // Two versions of this are present in coverage, ~LinkAsyncWorker and
 <span class="lineNum">     179 </span>                :            : // ~LinkAsyncWorker.2. Only the latter gets called which leaves the former
@@ -259,65 +259,65 @@
 <span class="lineNum">     188 </span>                :            :     enum comm_link link;
 <a name="189"><span class="lineNum">     189 </span>                :            : };</a>
 <span class="lineNum">     190 </span>                :            : 
-<span class="lineNum">     191 </span>                :<span class="lineCov">         64 : class RecvFromAsyncWorker : public LinkAsyncWorker</span>
+<span class="lineNum">     191 </span>                :<span class="lineCov">         46 : class RecvFromAsyncWorker : public LinkAsyncWorker</span>
 <a name="192"><span class="lineNum">     192 </span>                :            : {</a>
 <span class="lineNum">     193 </span>                :            : public:
-<span class="lineNum">     194 </span>                :<span class="lineCov">         32 :     RecvFromAsyncWorker(const Napi::Function&amp; callback,</span>
+<span class="lineNum">     194 </span>                :<span class="lineCov">         23 :     RecvFromAsyncWorker(const Napi::Function&amp; callback,</span>
 <span class="lineNum">     195 </span>                :            :                         const int link,
 <span class="lineNum">     196 </span>                :            :                         const Napi::Buffer&lt;uint8_t&gt;&amp; buffer,
-<span class="lineNum">     197 </span>                :<span class="lineCov">         32 :                         const struct timeval&amp; timeout) :</span>
-<span class="lineNum">     198 </span>                :<span class="lineCov">         32 :         LinkAsyncWorker(callback, link, buffer, timeout)</span>
+<span class="lineNum">     197 </span>                :<span class="lineCov">         23 :                         const struct timeval&amp; timeout) :</span>
+<span class="lineNum">     198 </span>                :<span class="lineCov">         23 :         LinkAsyncWorker(callback, link, buffer, timeout)</span>
 <span class="lineNum">     199 </span>                :            :     {
-<span class="lineNum">     200 </span>                :<span class="lineCov">         32 :     }</span>
+<span class="lineNum">     200 </span>                :<span class="lineCov">         23 :     }</span>
 <a name="201"><span class="lineNum">     201 </span>                :            : </a>
 <span class="lineNum">     202 </span>                :            : protected:
-<span class="lineNum">     203 </span>                :<span class="lineCov">         32 :     ssize_t Communicate() override</span>
+<span class="lineNum">     203 </span>                :<span class="lineCov">         23 :     ssize_t Communicate() override</span>
 <span class="lineNum">     204 </span>                :            :     {
-<span class="lineNum">     205 </span>                :<span class="lineCov">         32 :         return recv_from(link, buf, len, &amp;timeout);</span>
+<span class="lineNum">     205 </span>                :<span class="lineCov">         23 :         return recv_from(link, buf, len, &amp;timeout);</span>
 <span class="lineNum">     206 </span>                :            :     }
 <a name="207"><span class="lineNum">     207 </span>                :            : };</a>
 <span class="lineNum">     208 </span>                :            : 
-<span class="lineNum">     209 </span>                :<span class="lineCov">         32 : void LoRaComms::RecvFrom(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     209 </span>                :<span class="lineCov">         23 : void LoRaComms::RecvFrom(const Napi::CallbackInfo&amp; info)</span>
 <span class="lineNum">     210 </span>                :            : {
-<span class="lineNum">     211 </span>                :<span class="lineCov">         64 :     (new RecvFromAsyncWorker(info[4].As&lt;Napi::Function&gt;(),</span>
-<span class="lineNum">     212 </span>                :<span class="lineCov">         64 :                              info[0].As&lt;Napi::Number&gt;(),</span>
-<span class="lineNum">     213 </span>                :<span class="lineCov">         64 :                              info[1].As&lt;Napi::Buffer&lt;uint8_t&gt;&gt;(),</span>
-<span class="lineNum">     214 </span>                :<span class="lineCov">        128 :                              TimeVal(info, 2)))</span>
-<span class="lineNum">     215 </span>                :<span class="lineCov">        128 :         -&gt;Queue();</span>
-<a name="216"><span class="lineNum">     216 </span>                :<span class="lineCov">         32 : }</span></a>
+<span class="lineNum">     211 </span>                :<span class="lineCov">         46 :     (new RecvFromAsyncWorker(info[4].As&lt;Napi::Function&gt;(),</span>
+<span class="lineNum">     212 </span>                :<span class="lineCov">         46 :                              info[0].As&lt;Napi::Number&gt;(),</span>
+<span class="lineNum">     213 </span>                :<span class="lineCov">         46 :                              info[1].As&lt;Napi::Buffer&lt;uint8_t&gt;&gt;(),</span>
+<span class="lineNum">     214 </span>                :<span class="lineCov">         92 :                              TimeVal(info, 2)))</span>
+<span class="lineNum">     215 </span>                :<span class="lineCov">         92 :         -&gt;Queue();</span>
+<a name="216"><span class="lineNum">     216 </span>                :<span class="lineCov">         23 : }</span></a>
 <span class="lineNum">     217 </span>                :            : 
-<span class="lineNum">     218 </span>                :<span class="lineCov">         34 : class SendToAsyncWorker : public LinkAsyncWorker</span>
+<span class="lineNum">     218 </span>                :<span class="lineCov">         38 : class SendToAsyncWorker : public LinkAsyncWorker</span>
 <a name="219"><span class="lineNum">     219 </span>                :            : {</a>
 <span class="lineNum">     220 </span>                :            : public:
-<span class="lineNum">     221 </span>                :<span class="lineCov">         17 :     SendToAsyncWorker(const Napi::Function&amp; callback,</span>
+<span class="lineNum">     221 </span>                :<span class="lineCov">         19 :     SendToAsyncWorker(const Napi::Function&amp; callback,</span>
 <span class="lineNum">     222 </span>                :            :                       const int link,
 <span class="lineNum">     223 </span>                :            :                       const Napi::Buffer&lt;uint8_t&gt;&amp; buffer,
 <span class="lineNum">     224 </span>                :            :                       ssize_t hwm,
-<span class="lineNum">     225 </span>                :<span class="lineCov">         17 :                       const struct timeval&amp; timeout) :</span>
+<span class="lineNum">     225 </span>                :<span class="lineCov">         19 :                       const struct timeval&amp; timeout) :</span>
 <span class="lineNum">     226 </span>                :            :         LinkAsyncWorker(callback, link, buffer, timeout),
-<span class="lineNum">     227 </span>                :<span class="lineCov">         17 :         hwm(hwm)</span>
+<span class="lineNum">     227 </span>                :<span class="lineCov">         19 :         hwm(hwm)</span>
 <span class="lineNum">     228 </span>                :            :     {
-<span class="lineNum">     229 </span>                :<span class="lineCov">         17 :     }</span>
+<span class="lineNum">     229 </span>                :<span class="lineCov">         19 :     }</span>
 <a name="230"><span class="lineNum">     230 </span>                :            : </a>
 <span class="lineNum">     231 </span>                :            : protected:
-<span class="lineNum">     232 </span>                :<span class="lineCov">         17 :     ssize_t Communicate() override</span>
+<span class="lineNum">     232 </span>                :<span class="lineCov">         19 :     ssize_t Communicate() override</span>
 <span class="lineNum">     233 </span>                :            :     {
-<span class="lineNum">     234 </span>                :<span class="lineCov">         17 :         return send_to(link, buf, len, hwm, &amp;timeout);</span>
+<span class="lineNum">     234 </span>                :<span class="lineCov">         19 :         return send_to(link, buf, len, hwm, &amp;timeout);</span>
 <span class="lineNum">     235 </span>                :            :     }
 <span class="lineNum">     236 </span>                :            : 
 <span class="lineNum">     237 </span>                :            : private:
 <span class="lineNum">     238 </span>                :            :     ssize_t hwm;
 <a name="239"><span class="lineNum">     239 </span>                :            : };</a>
 <span class="lineNum">     240 </span>                :            : 
-<span class="lineNum">     241 </span>                :<span class="lineCov">         17 : void LoRaComms::SendTo(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     241 </span>                :<span class="lineCov">         19 : void LoRaComms::SendTo(const Napi::CallbackInfo&amp; info)</span>
 <span class="lineNum">     242 </span>                :            : {
-<span class="lineNum">     243 </span>                :<span class="lineCov">         34 :     (new SendToAsyncWorker(info[5].As&lt;Napi::Function&gt;(),</span>
-<span class="lineNum">     244 </span>                :<span class="lineCov">         34 :                            info[0].As&lt;Napi::Number&gt;(),</span>
-<span class="lineNum">     245 </span>                :<span class="lineCov">         34 :                            info[1].As&lt;Napi::Buffer&lt;uint8_t&gt;&gt;(),</span>
-<span class="lineNum">     246 </span>                :<span class="lineCov">         34 :                            info[2].As&lt;Napi::Number&gt;(),</span>
-<span class="lineNum">     247 </span>                :<span class="lineCov">         68 :                            TimeVal(info, 3)))</span>
-<span class="lineNum">     248 </span>                :<span class="lineCov">         68 :         -&gt;Queue();</span>
-<a name="249"><span class="lineNum">     249 </span>                :<span class="lineCov">         17 : }</span></a>
+<span class="lineNum">     243 </span>                :<span class="lineCov">         38 :     (new SendToAsyncWorker(info[5].As&lt;Napi::Function&gt;(),</span>
+<span class="lineNum">     244 </span>                :<span class="lineCov">         38 :                            info[0].As&lt;Napi::Number&gt;(),</span>
+<span class="lineNum">     245 </span>                :<span class="lineCov">         38 :                            info[1].As&lt;Napi::Buffer&lt;uint8_t&gt;&gt;(),</span>
+<span class="lineNum">     246 </span>                :<span class="lineCov">         38 :                            info[2].As&lt;Napi::Number&gt;(),</span>
+<span class="lineNum">     247 </span>                :<span class="lineCov">         76 :                            TimeVal(info, 3)))</span>
+<span class="lineNum">     248 </span>                :<span class="lineCov">         76 :         -&gt;Queue();</span>
+<a name="249"><span class="lineNum">     249 </span>                :<span class="lineCov">         19 : }</span></a>
 <span class="lineNum">     250 </span>                :            : 
 <span class="lineNum">     251 </span>                :<span class="lineCov">          2 : void LoRaComms::SetGWSendHWM(const Napi::CallbackInfo&amp; info)</span>
 <span class="lineNum">     252 </span>                :            : {
@@ -352,36 +352,36 @@
 <span class="lineNum">     281 </span>                :<span class="lineCov">         15 :     reset_log_queues();</span>
 <a name="282"><span class="lineNum">     282 </span>                :<span class="lineCov">         15 : }</span></a>
 <span class="lineNum">     283 </span>                :            : 
-<span class="lineNum">     284 </span>                :<span class="lineCov">       1622 : class LogAsyncWorker : public CommsAsyncWorker</span>
+<span class="lineNum">     284 </span>                :<span class="lineCov">       1628 : class LogAsyncWorker : public CommsAsyncWorker</span>
 <a name="285"><span class="lineNum">     285 </span>                :            : {</a>
 <span class="lineNum">     286 </span>                :            : public:
-<span class="lineNum">     287 </span>                :<span class="lineCov">        811 :     LogAsyncWorker(const Napi::Function&amp; callback,</span>
+<span class="lineNum">     287 </span>                :<span class="lineCov">        814 :     LogAsyncWorker(const Napi::Function&amp; callback,</span>
 <span class="lineNum">     288 </span>                :            :                    get_log_message_fn get_log_message, 
 <span class="lineNum">     289 </span>                :            :                    const Napi::Buffer&lt;uint8_t&gt;&amp; buffer,
-<span class="lineNum">     290 </span>                :<span class="lineCov">        811 :                    const struct timeval&amp; timeout) :</span>
+<span class="lineNum">     290 </span>                :<span class="lineCov">        814 :                    const struct timeval&amp; timeout) :</span>
 <span class="lineNum">     291 </span>                :            :         CommsAsyncWorker(callback, buffer, timeout),
-<span class="lineNum">     292 </span>                :<span class="lineCov">        811 :         get_log_message(get_log_message)</span>
+<span class="lineNum">     292 </span>                :<span class="lineCov">        814 :         get_log_message(get_log_message)</span>
 <span class="lineNum">     293 </span>                :            :     {
-<span class="lineNum">     294 </span>                :<span class="lineCov">        811 :     }</span>
+<span class="lineNum">     294 </span>                :<span class="lineCov">        814 :     }</span>
 <a name="295"><span class="lineNum">     295 </span>                :            : </a>
 <span class="lineNum">     296 </span>                :            : protected:
-<span class="lineNum">     297 </span>                :<span class="lineCov">        811 :     ssize_t Communicate() override</span>
+<span class="lineNum">     297 </span>                :<span class="lineCov">        814 :     ssize_t Communicate() override</span>
 <span class="lineNum">     298 </span>                :            :     {
-<span class="lineNum">     299 </span>                :<span class="lineCov">        811 :         return get_log_message(static_cast&lt;char*&gt;(buf), len, &amp;timeout);</span>
+<span class="lineNum">     299 </span>                :<span class="lineCov">        814 :         return get_log_message(static_cast&lt;char*&gt;(buf), len, &amp;timeout);</span>
 <span class="lineNum">     300 </span>                :            :     }
 <span class="lineNum">     301 </span>                :            : 
 <span class="lineNum">     302 </span>                :            : private:
 <span class="lineNum">     303 </span>                :            :     get_log_message_fn get_log_message;
 <a name="304"><span class="lineNum">     304 </span>                :            : };</a>
 <span class="lineNum">     305 </span>                :            : 
-<span class="lineNum">     306 </span>                :<span class="lineCov">        794 : void LoRaComms::GetLogInfoMessage(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     306 </span>                :<span class="lineCov">        797 : void LoRaComms::GetLogInfoMessage(const Napi::CallbackInfo&amp; info)</span>
 <span class="lineNum">     307 </span>                :            : {
-<span class="lineNum">     308 </span>                :<span class="lineCov">       1588 :     (new LogAsyncWorker(info[3].As&lt;Napi::Function&gt;(),</span>
+<span class="lineNum">     308 </span>                :<span class="lineCov">       1594 :     (new LogAsyncWorker(info[3].As&lt;Napi::Function&gt;(),</span>
 <span class="lineNum">     309 </span>                :            :                         get_log_info_message,
-<span class="lineNum">     310 </span>                :<span class="lineCov">       1588 :                         info[0].As&lt;Napi::Buffer&lt;uint8_t&gt;&gt;(),</span>
-<span class="lineNum">     311 </span>                :<span class="lineCov">       2382 :                         TimeVal(info, 1)))</span>
-<span class="lineNum">     312 </span>                :<span class="lineCov">       3176 :         -&gt;Queue();</span>
-<a name="313"><span class="lineNum">     313 </span>                :<span class="lineCov">        794 : }</span></a>
+<span class="lineNum">     310 </span>                :<span class="lineCov">       1594 :                         info[0].As&lt;Napi::Buffer&lt;uint8_t&gt;&gt;(),</span>
+<span class="lineNum">     311 </span>                :<span class="lineCov">       2391 :                         TimeVal(info, 1)))</span>
+<span class="lineNum">     312 </span>                :<span class="lineCov">       3188 :         -&gt;Queue();</span>
+<a name="313"><span class="lineNum">     313 </span>                :<span class="lineCov">        797 : }</span></a>
 <span class="lineNum">     314 </span>                :            : 
 <span class="lineNum">     315 </span>                :<span class="lineCov">         17 : void LoRaComms::GetLogErrorMessage(const Napi::CallbackInfo&amp; info)</span>
 <span class="lineNum">     316 </span>                :            : {
@@ -408,20 +408,20 @@
 <span class="lineNum">     337 </span>                :<span class="lineCov">          1 :     set_log_max_msg_size(static_cast&lt;uint32_t&gt;(info[0].As&lt;Napi::Number&gt;()));</span>
 <a name="338"><span class="lineNum">     338 </span>                :<span class="lineCov">          1 : }</span></a>
 <span class="lineNum">     339 </span>                :            : 
-<span class="lineNum">     340 </span>                :<span class="lineCov">        812 : Napi::Value LoRaComms::GetLogMaxMessageSize(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     340 </span>                :<span class="lineCov">        815 : Napi::Value LoRaComms::GetLogMaxMessageSize(const Napi::CallbackInfo&amp; info)</span>
 <span class="lineNum">     341 </span>                :            : {
-<span class="lineNum">     342 </span>                :<span class="lineCov">        812 :     return Napi::Number::New(info.Env(), get_log_max_msg_size());</span>
+<span class="lineNum">     342 </span>                :<span class="lineCov">        815 :     return Napi::Number::New(info.Env(), get_log_max_msg_size());</span>
 <span class="lineNum">     343 </span>                :            : }
 <span class="lineNum">     344 </span>                :            : 
 <a name="345"><span class="lineNum">     345 </span>                :            : typedef std::conditional&lt;sizeof(time_t) == 8, int64_t, int32_t&gt;::type tm_t;</a>
 <span class="lineNum">     346 </span>                :            : 
-<span class="lineNum">     347 </span>                :<span class="lineCov">        865 : struct timeval LoRaComms::TimeVal(const Napi::CallbackInfo&amp; info,</span>
+<span class="lineNum">     347 </span>                :<span class="lineCov">        861 : struct timeval LoRaComms::TimeVal(const Napi::CallbackInfo&amp; info,</span>
 <span class="lineNum">     348 </span>                :            :                                   const uint32_t arg)
 <span class="lineNum">     349 </span>                :            : {
 <span class="lineNum">     350 </span>                :            :     struct timeval tv;
-<span class="lineNum">     351 </span>                :<span class="lineCov">        865 :     tv.tv_sec = static_cast&lt;tm_t&gt;(info[arg].As&lt;Napi::Number&gt;());</span>
-<span class="lineNum">     352 </span>                :<span class="lineCov">        865 :     tv.tv_usec = static_cast&lt;tm_t&gt;(info[arg+1].As&lt;Napi::Number&gt;());</span>
-<span class="lineNum">     353 </span>                :<span class="lineCov">        865 :     return tv;</span>
+<span class="lineNum">     351 </span>                :<span class="lineCov">        861 :     tv.tv_sec = static_cast&lt;tm_t&gt;(info[arg].As&lt;Napi::Number&gt;());</span>
+<span class="lineNum">     352 </span>                :<span class="lineCov">        861 :     tv.tv_usec = static_cast&lt;tm_t&gt;(info[arg+1].As&lt;Napi::Number&gt;());</span>
+<span class="lineNum">     353 </span>                :<span class="lineCov">        861 :     return tv;</span>
 <a name="354"><span class="lineNum">     354 </span>                :            : }</a>
 <span class="lineNum">     355 </span>                :            : 
 <span class="lineNum">     356 </span>                :<span class="lineCov">          6 : enum comm_link LoRaComms::CommLink(const Napi::CallbackInfo&amp; info,</span>
