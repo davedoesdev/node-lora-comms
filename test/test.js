@@ -5,7 +5,7 @@
 const lora_comms = require('..'),
       lora_packet = require('lora-packet'),
       crypto = require('crypto'),
-      { PassThrough } = require('stream'),
+      { Transform } = require('stream'),
       aw = require('awaitify-stream'),
       expect = require('chai').expect,
       PROTOCOL_VERSION = 2,
@@ -23,35 +23,43 @@ const lora_comms = require('..'),
       AppSKey = Buffer.alloc(16),
       payload_size = 12;
 
-let uplink, downlink;
-
 async function wait_for(link, pkt)
 {
     while (true)
     {
         let data = await link.readAsync();
-        if ((data.length >= 4) && (data[0] === PROTOCOL_VERSION))
+        if ((data.length >= 4) &&
+            (data[0] === PROTOCOL_VERSION) &&
+            (data[3] === pkt))
         {
-            let type = data[3];
-
-            if (type === pkts.PUSH_DATA)
-            {
-                data[3] = pkts.PUSH_ACK;
-                await uplink.writeAsync(data.slice(0, 4));
-            }
-
-            if (type === pkts.PULL_DATA)
-            {
-                data[3] = pkts.PULL_ACK;
-                await downlink.writeAsync(data.slice(0, 4));
-            }
-
-            if (type === pkt)
-            {
-                return data;
-            }
+            return data;
         }
     }
+}
+
+let uplink_out, downlink_out;
+
+function ack(data, _, cb)
+{
+    if ((data.length >= 4) && (data[0] === PROTOCOL_VERSION))
+    {
+        let type = data[3];
+
+        if (type === pkts.PUSH_DATA)
+        {
+            uplink_out.writeAsync(Buffer.concat([
+                data.slice(0, 3),
+                Buffer.from([pkts.PUSH_ACK])]));
+        }
+        else if (type === pkts.PULL_DATA)
+        {
+            downlink_out.writeAsync(Buffer.concat([
+                data.slice(0, 3),
+                Buffer.from([pkts.PULL_ACK])]));
+        }
+    }
+
+    cb(null, data);
 }
 
 function start(options)
@@ -96,16 +104,8 @@ function start(options)
 
         if (!(options && options.no_streams))
         {
-            if (options && options.highWaterMark)
-            {
-                uplink = aw.createDuplexer(lora_comms.uplink);
-                downlink = aw.createDuplexer(lora_comms.downlink);
-            }
-            else
-            {
-                uplink = aw.createWriter(lora_comms.uplink);
-                downlink = aw.createWriter(lora_comms.downlink);
-            }
+            uplink_out = aw.createWriter(lora_comms.uplink);
+            downlink_out = aw.createWriter(lora_comms.downlink);
         }
     };
 }
@@ -145,31 +145,19 @@ describe('echoing device', function ()
     {
         start(options)();
 
-        let ul, dl;
+        let uplink_in = aw.createReader(lora_comms.uplink.pipe(
+            new Transform(Object.assign({ transform: ack }, options))));
+        let downlink_in = aw.createReader(lora_comms.downlink.pipe(
+            new Transform(Object.assign({ transform: ack }, options))));
 
-        if (options && options.highWaterMark)
-        {
-            ul = uplink;
-            dl = downlink;
-        }
-        else
-        {
-            let passthru = new PassThrough();
-            lora_comms.uplink.pipe(passthru);
-            lora_comms.downlink.pipe(passthru);
-            let combined = aw.createReader(passthru);
-            ul = combined;
-            dl = combined;
-        }
-
-        await wait_for(dl, pkts.PULL_DATA);
+        await wait_for(downlink_in, pkts.PULL_DATA);
 
         let send_payload = crypto.randomBytes(payload_size);
         let count = 0;
 
         while (true)
         {
-            let packet = await wait_for(ul, pkts.PUSH_DATA);
+            let packet = await wait_for(uplink_in, pkts.PUSH_DATA);
             let payload = JSON.parse(packet.slice(12));
             if (!payload.rxpk)
             {
@@ -250,9 +238,9 @@ describe('echoing device', function ()
                 };
 
                 let databuf = Buffer.concat([header, Buffer.from(JSON.stringify({txpk: txpk}))]);
-                await downlink.writeAsync(databuf);
+                await downlink_out.writeAsync(databuf);
 
-                let tx_ack = await wait_for(dl, pkts.TX_ACK);
+                let tx_ack = await wait_for(downlink_in, pkts.TX_ACK);
                 expect(tx_ack[1]).to.equal(header[1]);
                 expect(tx_ack[2]).to.equal(header[2]);
             }

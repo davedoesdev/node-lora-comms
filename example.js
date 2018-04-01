@@ -1,6 +1,7 @@
 const lora_comms = require('.'),
       lora_packet = require('lora-packet'),
       crypto = require('crypto'),
+      { Transform } = require('stream'),
       aw = require('awaitify-stream'),
       expect = require('chai').expect,
       PROTOCOL_VERSION = 2,
@@ -26,41 +27,50 @@ lora_comms.log_error.pipe(process.stderr);
 
 lora_comms.start();
 
-const uplink = aw.createDuplexer(lora_comms.uplink);
-const downlink = aw.createDuplexer(lora_comms.downlink);
-
 async function wait_for(link, pkt) {
     while (true) {
-        let data = await link.readAsync();
-        if ((data.length >= 4) && (data[0] === PROTOCOL_VERSION)) {
-            let type = data[3];
-
-            if (type === pkts.PUSH_DATA) {
-                data[3] = pkts.PUSH_ACK;
-                await uplink.writeAsync(data.slice(0, 4));
-            }
-
-            if (type === pkts.PULL_DATA) {
-                data[3] = pkts.PULL_ACK;
-                await downlink.writeAsync(data.slice(0, 4));
-            }
-
-            if (type === pkt) {
-                return data;
-            }
+        const data = await link.readAsync();
+        if ((data.length >= 4) &&
+            (data[0] === PROTOCOL_VERSION) &&
+            (data[3] === pkt)) {
+            return data;
         }
     }
 }
 
+const uplink_out = aw.createWriter(lora_comms.uplink);
+const downlink_out = aw.createWriter(lora_comms.downlink);
+
+function ack(data, _, cb) {
+    if ((data.length >= 4) && (data[0] === PROTOCOL_VERSION)) {
+        const type = data[3];
+        if (type === pkts.PUSH_DATA) {
+            uplink_out.writeAsync(Buffer.concat([
+                data.slice(0, 3),
+                Buffer.from([pkts.PUSH_ACK])]));
+        } else if (type === pkts.PULL_DATA) {
+            downlink_out.writeAsync(Buffer.concat([
+                data.slice(0, 3),
+                Buffer.from([pkts.PULL_ACK])]));
+        }
+    }
+    cb(null, data);
+}
+
 (async () => {
-    await wait_for(downlink, pkts.PULL_DATA);
+    const uplink_in = aw.createReader(lora_comms.uplink.pipe(
+        new Transform({ transform: ack })));
+    const downlink_in = aw.createReader(lora_comms.downlink.pipe(
+        new Transform({ transform: ack })))
+
+    await wait_for(downlink_in, pkts.PULL_DATA);
 
     let send_payload = crypto.randomBytes(payload_size);
     let count = 0;
 
     while (true)
     {
-        let packet = await wait_for(uplink, pkts.PUSH_DATA);
+        let packet = await wait_for(uplink_in, pkts.PUSH_DATA);
         let payload = JSON.parse(packet.slice(12));
         if (!payload.rxpk) {
             continue;
@@ -135,9 +145,9 @@ async function wait_for(link, pkt) {
             };
 
             let databuf = Buffer.concat([header, Buffer.from(JSON.stringify({txpk: txpk}))]);
-            await downlink.writeAsync(databuf);
+            await downlink_out.writeAsync(databuf);
 
-            let tx_ack = await wait_for(downlink, pkts.TX_ACK);
+            let tx_ack = await wait_for(downlink_in, pkts.TX_ACK);
             if (tx_ack.compare(header, 1, 3, 1, 3) !== 0) {
                 console.error('ERROR: tx token mismatch');
             }

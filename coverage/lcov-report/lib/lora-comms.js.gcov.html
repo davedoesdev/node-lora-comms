@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2018-03-31 22:05:54</td>
+            <td class="headerValue">2018-04-01 06:29:16</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">27</td>
@@ -106,9 +106,9 @@
 <span class="lineNum">      35 </span>                :            : 
 <a name="36"><span class="lineNum">      36 </span>                :            :     _write(data, encoding, cb)</a>
 <span class="lineNum">      37 </span>                :            :     {
-<span class="lineNum">      38 </span>                :<span class="lineCov">         24 :         LoRaComms.send_to(this._link, data, -1, -1, -1, (err, r) =&gt;</span>
+<span class="lineNum">      38 </span>                :<span class="lineCov">         59 :         LoRaComms.send_to(this._link, data, -1, -1, -1, (err, r) =&gt;</span>
 <span class="lineNum">      39 </span>                :            :         {
-<span class="lineNum">      40 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 22 times"> + </span>]:<span class="lineCov">         24 :             if (err)</span>
+<span class="lineNum">      40 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 57 times"> + </span>]:<span class="lineCov">         59 :             if (err)</span>
 <span class="lineNum">      41 </span>                :            :             {
 <span class="lineNum">      42 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :                 if (err.errno === LoRaComms.EBADF)</span>
 <span class="lineNum">      43 </span>                :            :                 {
@@ -118,25 +118,25 @@
 <span class="lineNum">      47 </span>                :<span class="lineCov">          2 :                 return cb(err);</span>
 <span class="lineNum">      48 </span>                :            :             }
 <span class="lineNum">      49 </span>                :            : 
-<span class="lineNum">      50 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 21 times"> + </span>]:<span class="lineCov">         22 :             if (r !== data.length)</span>
+<span class="lineNum">      50 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 56 times"> + </span>]:<span class="lineCov">         57 :             if (r !== data.length)</span>
 <span class="lineNum">      51 </span>                :            :             {
 <span class="lineNum">      52 </span>                :<span class="lineCov">          1 :                 return cb(new Error('not all data was written'));</span>
 <span class="lineNum">      53 </span>                :            :             }
 <span class="lineNum">      54 </span>                :            : 
-<span class="lineNum">      55 </span>                :<span class="lineCov">         21 :             cb();</span>
+<span class="lineNum">      55 </span>                :<span class="lineCov">         56 :             cb();</span>
 <span class="lineNum">      56 </span>                :            :         });
 <a name="57"><span class="lineNum">      57 </span>                :            :     }</a>
 <span class="lineNum">      58 </span>                :            : 
 <span class="lineNum">      59 </span>                :            :     _read()
 <span class="lineNum">      60 </span>                :            :     {
-<span class="lineNum">      61 </span>        [<span class="branchCov" title="Branch 0 was taken 20 times"> + </span><span class="branchCov" title="Branch 1 was taken 26 times"> + </span>]:<span class="lineCov">         46 :         if (this._reading) { return; }</span>
-<span class="lineNum">      62 </span>                :<span class="lineCov">         26 :         this._reading = true;</span>
+<span class="lineNum">      61 </span>        [<span class="branchCov" title="Branch 0 was taken 53 times"> + </span><span class="branchCov" title="Branch 1 was taken 61 times"> + </span>]:<span class="lineCov">        114 :         if (this._reading) { return; }</span>
+<span class="lineNum">      62 </span>                :<span class="lineCov">         61 :         this._reading = true;</span>
 <a name="63"><span class="lineNum">      63 </span>                :            : </a>
-<span class="lineNum">      64 </span>                :<span class="lineCov">         26 :         let buf = Buffer.alloc(LoRaComms.recv_from_buflen);</span>
-<span class="lineNum">      65 </span>                :<span class="lineCov">         26 :         LoRaComms.recv_from(this._link, buf, -1, -1, (err, r) =&gt;</span>
+<span class="lineNum">      64 </span>                :<span class="lineCov">         61 :         let buf = Buffer.alloc(LoRaComms.recv_from_buflen);</span>
+<span class="lineNum">      65 </span>                :<span class="lineCov">         61 :         LoRaComms.recv_from(this._link, buf, -1, -1, (err, r) =&gt;</span>
 <span class="lineNum">      66 </span>                :            :         {
-<span class="lineNum">      67 </span>                :<span class="lineCov">         26 :             this._reading = false;</span>
-<span class="lineNum">      68 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 21 times"> + </span>]:<span class="lineCov">         26 :             if (err)</span>
+<span class="lineNum">      67 </span>                :<span class="lineCov">         61 :             this._reading = false;</span>
+<span class="lineNum">      68 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 56 times"> + </span>]:<span class="lineCov">         61 :             if (err)</span>
 <span class="lineNum">      69 </span>                :            :             {
 <span class="lineNum">      70 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          5 :                 if (err.errno === LoRaComms.EBADF)</span>
 <span class="lineNum">      71 </span>                :            :                 {
@@ -146,9 +146,9 @@
 <span class="lineNum">      75 </span>                :<span class="lineCov">          1 :                 return process.nextTick(() =&gt; this.emit('error', err));</span>
 <span class="lineNum">      76 </span>                :            :             }
 <span class="lineNum">      77 </span>                :            : 
-<a name="78"><span class="lineNum">      78 </span>        [<span class="branchCov" title="Branch 0 was taken 20 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         21 :             if (this.push(buf.slice(0, r)))</span></a>
+<a name="78"><span class="lineNum">      78 </span>        [<span class="branchCov" title="Branch 0 was taken 53 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">         56 :             if (this.push(buf.slice(0, r)))</span></a>
 <span class="lineNum">      79 </span>                :            :             {
-<span class="lineNum">      80 </span>                :<span class="lineCov">         20 :                 process.nextTick(() =&gt; this._read());</span>
+<span class="lineNum">      80 </span>                :<span class="lineCov">         53 :                 process.nextTick(() =&gt; this._read());</span>
 <span class="lineNum">      81 </span>                :            :             }
 <span class="lineNum">      82 </span>                :            :         });
 <span class="lineNum">      83 </span>                :            :     }
@@ -164,10 +164,10 @@
 <span class="lineNum">      93 </span>                :            : 
 <span class="lineNum">      94 </span>                :            :     _read()
 <a name="95"><span class="lineNum">      95 </span>                :            :     {</a>
-<span class="lineNum">      96 </span>                :<span class="lineCov">        841 :         let buf = Buffer.alloc(LoRaComms.get_log_max_msg_size());</span>
-<span class="lineNum">      97 </span>                :<span class="lineCov">        841 :         this._get_log_message(buf, -1, -1, (err, r) =&gt;</span>
+<span class="lineNum">      96 </span>                :<span class="lineCov">       1086 :         let buf = Buffer.alloc(LoRaComms.get_log_max_msg_size());</span>
+<span class="lineNum">      97 </span>                :<span class="lineCov">       1086 :         this._get_log_message(buf, -1, -1, (err, r) =&gt;</span>
 <span class="lineNum">      98 </span>                :            :         {
-<span class="lineNum">      99 </span>        [<span class="branchCov" title="Branch 0 was taken 31 times"> + </span><span class="branchCov" title="Branch 1 was taken 810 times"> + </span>]:<span class="lineCov">        841 :             if (err)</span>
+<span class="lineNum">      99 </span>        [<span class="branchCov" title="Branch 0 was taken 31 times"> + </span><span class="branchCov" title="Branch 1 was taken 1055 times"> + </span>]:<span class="lineCov">       1086 :             if (err)</span>
 <span class="lineNum">     100 </span>                :            :             {
 <span class="lineNum">     101 </span>        [<span class="branchCov" title="Branch 0 was taken 30 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         31 :                 if (err.errno === LoRaComms.EBADF)</span>
 <span class="lineNum">     102 </span>                :            :                 {
@@ -177,9 +177,9 @@
 <span class="lineNum">     106 </span>                :<span class="lineCov">          1 :                 return process.nextTick(() =&gt; this.emit('error', err));</span>
 <span class="lineNum">     107 </span>                :            :             }
 <span class="lineNum">     108 </span>                :            : 
-<a name="109"><span class="lineNum">     109 </span>        [<span class="branchCov" title="Branch 0 was taken 695 times"> + </span><span class="branchCov" title="Branch 1 was taken 115 times"> + </span>]:<span class="lineCov">        810 :             if (this.push(buf.slice(0, r)))</span></a>
+<a name="109"><span class="lineNum">     109 </span>        [<span class="branchCov" title="Branch 0 was taken 804 times"> + </span><span class="branchCov" title="Branch 1 was taken 251 times"> + </span>]:<span class="lineCov">       1055 :             if (this.push(buf.slice(0, r)))</span></a>
 <span class="lineNum">     110 </span>                :            :             {
-<span class="lineNum">     111 </span>                :<span class="lineCov">        695 :                 process.nextTick(() =&gt; this.read());</span>
+<span class="lineNum">     111 </span>                :<span class="lineCov">        804 :                 process.nextTick(() =&gt; this.read());</span>
 <span class="lineNum">     112 </span>                :            :             }
 <span class="lineNum">     113 </span>                :            :         });
 <span class="lineNum">     114 </span>                :            :     }
@@ -292,7 +292,7 @@
 <span class="lineNum">     221 </span>                :            :      */
 <span class="lineNum">     222 </span>                :            :     get uplink()
 <span class="lineNum">     223 </span>                :            :     {
-<span class="lineNum">     224 </span>                :<span class="lineCov">         20 :         return this._uplink;</span>
+<span class="lineNum">     224 </span>                :<span class="lineCov">         21 :         return this._uplink;</span>
 <span class="lineNum">     225 </span>                :            :     }
 <span class="lineNum">     226 </span>                :            : 
 <span class="lineNum">     227 </span>                :            :     /**
@@ -305,7 +305,7 @@
 <span class="lineNum">     234 </span>                :            :      */
 <span class="lineNum">     235 </span>                :            :     get downlink()
 <span class="lineNum">     236 </span>                :            :     {
-<span class="lineNum">     237 </span>                :<span class="lineCov">         17 :         return this._downlink;</span>
+<span class="lineNum">     237 </span>                :<span class="lineCov">         18 :         return this._downlink;</span>
 <span class="lineNum">     238 </span>                :            :     }
 <span class="lineNum">     239 </span>                :            : 
 <span class="lineNum">     240 </span>                :            :     /**
