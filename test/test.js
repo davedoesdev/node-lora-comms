@@ -41,25 +41,28 @@ let uplink_out, downlink_out;
 
 function ack(data, _, cb)
 {
-    if ((data.length >= 4) && (data[0] === PROTOCOL_VERSION))
+    (async () =>
     {
-        let type = data[3];
-
-        if (type === pkts.PUSH_DATA)
+        if ((data.length >= 4) && (data[0] === PROTOCOL_VERSION))
         {
-            uplink_out.writeAsync(Buffer.concat([
-                data.slice(0, 3),
-                Buffer.from([pkts.PUSH_ACK])]));
-        }
-        else if (type === pkts.PULL_DATA)
-        {
-            downlink_out.writeAsync(Buffer.concat([
-                data.slice(0, 3),
-                Buffer.from([pkts.PULL_ACK])]));
-        }
-    }
+            let type = data[3];
 
-    cb(null, data);
+            if (type === pkts.PUSH_DATA)
+            {
+                await uplink_out.writeAsync(Buffer.concat([
+                    data.slice(0, 3),
+                    Buffer.from([pkts.PUSH_ACK])]));
+            }
+            else if (type === pkts.PULL_DATA)
+            {
+                await downlink_out.writeAsync(Buffer.concat([
+                    data.slice(0, 3),
+                    Buffer.from([pkts.PULL_ACK])]));
+            }
+        }
+
+        cb(null, data);
+    })();
 }
 
 function start(options)
@@ -145,10 +148,15 @@ describe('echoing device', function ()
     {
         start(options)();
 
+        const link_options = Object.assign(
+        {
+            transform: ack,
+            highWaterMark: 0
+        }, options);
         let uplink_in = aw.createReader(lora_comms.uplink.pipe(
-            new Transform(Object.assign({ transform: ack }, options))));
+            new Transform(link_options)));
         let downlink_in = aw.createReader(lora_comms.downlink.pipe(
-            new Transform(Object.assign({ transform: ack }, options))));
+            new Transform(link_options)));
 
         await wait_for(downlink_in, pkts.PULL_DATA);
 
