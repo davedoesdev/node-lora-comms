@@ -40,29 +40,39 @@ async function wait_for(link, pkt) {
 
 const uplink_out = aw.createWriter(lora_comms.uplink);
 const downlink_out = aw.createWriter(lora_comms.downlink);
+let received_first_pull_data = false;
 
 function ack(data, _, cb) {
-    if ((data.length >= 4) && (data[0] === PROTOCOL_VERSION)) {
-        const type = data[3];
-        if (type === pkts.PUSH_DATA) {
-            uplink_out.writeAsync(Buffer.concat([
-                data.slice(0, 3),
-                Buffer.from([pkts.PUSH_ACK])]));
-        } else if (type === pkts.PULL_DATA) {
-            downlink_out.writeAsync(Buffer.concat([
-                data.slice(0, 3),
-                Buffer.from([pkts.PULL_ACK])]));
+    (async () => {
+        if ((data.length >= 4) && (data[0] === PROTOCOL_VERSION)) {
+            const type = data[3];
+            if (type === pkts.PUSH_DATA) {
+                await uplink_out.writeAsync(Buffer.concat([
+                    data.slice(0, 3),
+                    Buffer.from([pkts.PUSH_ACK])]));
+            } else if (type === pkts.PULL_DATA) {
+                await downlink_out.writeAsync(Buffer.concat([
+                    data.slice(0, 3),
+                    Buffer.from([pkts.PULL_ACK])]));
+
+                process.nextTick(() => downlink_in.stream.read(0));
+
+                if (received_first_pull_data) {
+                    return cb();
+                }
+                received_first_pull_data = true;
+            }
         }
-    }
-    cb(null, data);
+        cb(null, data);
+    })();
 }
 
-(async () => {
-    const uplink_in = aw.createReader(lora_comms.uplink.pipe(
-        new Transform({ transform: ack })));
-    const downlink_in = aw.createReader(lora_comms.downlink.pipe(
-        new Transform({ transform: ack })))
+const uplink_in = aw.createReader(lora_comms.uplink.pipe(
+    new Transform({ transform: ack })));
+const downlink_in = aw.createReader(lora_comms.downlink.pipe(
+    new Transform({ transform: ack })));
 
+(async () => {
     await wait_for(downlink_in, pkts.PULL_DATA);
 
     let send_payload = crypto.randomBytes(payload_size);

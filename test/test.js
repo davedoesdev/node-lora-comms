@@ -37,7 +37,7 @@ async function wait_for(link, pkt)
     }
 }
 
-let uplink_out, downlink_out;
+let uplink_out, downlink_out, downlink_in, received_first_pull_data;
 
 function ack(data, _, cb)
 {
@@ -58,6 +58,14 @@ function ack(data, _, cb)
                 await downlink_out.writeAsync(Buffer.concat([
                     data.slice(0, 3),
                     Buffer.from([pkts.PULL_ACK])]));
+
+                process.nextTick(() => downlink_in.stream.read(0));
+
+                if (received_first_pull_data)
+                {
+                    return cb();
+                }
+                received_first_pull_data = false;
             }
         }
 
@@ -148,6 +156,8 @@ describe('echoing device', function ()
     {
         start(options)();
 
+        received_first_pull_data = false;
+
         const link_options = Object.assign(
         {
             transform: ack,
@@ -155,7 +165,7 @@ describe('echoing device', function ()
         }, options);
         let uplink_in = aw.createReader(lora_comms.uplink.pipe(
             new Transform(link_options)));
-        let downlink_in = aw.createReader(lora_comms.downlink.pipe(
+        downlink_in = aw.createReader(lora_comms.downlink.pipe(
             new Transform(link_options)));
 
         await wait_for(downlink_in, pkts.PULL_DATA);
