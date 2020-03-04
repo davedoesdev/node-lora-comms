@@ -1,20 +1,21 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <meta charset='utf-8' />
-  <title>lora-comms 0.0.1 | Documentation</title>
+  <meta charset='utf-8'>
+  <title>lora-comms 0.0.11 | Documentation</title>
+  <meta name='description' content='Read and write packets on a LoRa gateway'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
-  <link href='assets/bass.css' type='text/css' rel='stylesheet' />
-  <link href='assets/style.css' type='text/css' rel='stylesheet' />
-  <link href='assets/github.css' type='text/css' rel='stylesheet' />
-  <link href='assets/split.css' type='text/css' rel='stylesheet' />
+  <link href='assets/bass.css' rel='stylesheet'>
+  <link href='assets/style.css' rel='stylesheet'>
+  <link href='assets/github.css' rel='stylesheet'>
+  <link href='assets/split.css' rel='stylesheet'>
 </head>
 <body class='documentation m0'>
     <div class='flex'>
       <div id='split-left' class='overflow-auto fs0 height-viewport-100'>
         <div class='py1 px2'>
           <h3 class='mb0 no-anchor'>lora-comms</h3>
-          <div class='mb1'><code>0.0.1</code></div>
+          <div class='mb1'><code>0.0.11</code></div>
           <input
             placeholder='Filter'
             id='filter-input'
@@ -131,14 +132,14 @@
             </ul>
           </div>
           <div class='mt1 h6 quiet'>
-            <a href='http://documentation.js.org/reading-documentation.html'>Need help reading this?</a>
+            <a href='https://documentation.js.org/reading-documentation.html'>Need help reading this?</a>
           </div>
         </div>
       </div>
       <div id='split-right' class='relative overflow-auto height-viewport-100'>
         
           
-            <section class='p2 mb2 clearfix bg-white minishadow'>
+          <section class='p2 mb2 clearfix bg-white minishadow'>
 
   
   <div class='clearfix'>
@@ -153,8 +154,7 @@
 
   <p>Module for reading and writing LoRa packets.</p>
 
-
-  <div class='pre p1 fill-light mt0'>lora-comms</div>
+    <div class='pre p1 fill-light mt0'>lora-comms</div>
   
   
     <p>
@@ -201,8 +201,7 @@
   <p>Start the LoRa radio, receiving and transmitting packets to
 <a href="#lora-commsuplink">uplink</a> and <a href="#lora-commsdownlink">downlink</a>.</p>
 
-
-  <div class='pre p1 fill-light mt0'>start(options: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>)</div>
+    <div class='pre p1 fill-light mt0'>start(options: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>)</div>
   
   
 
@@ -273,6 +272,8 @@
   
 
   
+
+  
 </section>
 
       </div>
@@ -294,8 +295,7 @@
 <p>A <a href="#lora-commseventstop">stop</a> event is emitted when the radio
 stops.</p>
 
-
-  <div class='pre p1 fill-light mt0'>stop()</div>
+    <div class='pre p1 fill-light mt0'>stop()</div>
   
   
 
@@ -304,6 +304,8 @@ stops.</p>
   
   
   
+  
+
   
 
   
@@ -341,8 +343,7 @@ stops.</p>
   <p>Duplex stream for receiving packets from the LoRa radio.
 Read <code>PUSH_DATA</code> packets. Write <code>PUSH_ACK</code> packets.</p>
 
-
-  <div class='pre p1 fill-light mt0'>uplink</div>
+    <div class='pre p1 fill-light mt0'>uplink</div>
   
     <p>
       Type:
@@ -356,6 +357,8 @@ Read <code>PUSH_DATA</code> packets. Write <code>PUSH_ACK</code> packets.</p>
   
   
   
+  
+
   
 
   
@@ -394,8 +397,7 @@ Read <code>PUSH_DATA</code> packets. Write <code>PUSH_ACK</code> packets.</p>
 Read <code>PULL_DATA</code> and <code>TX_ACK</code> packets. Write <code>PULL_ACK</code> and <code>PULL_RESP</code>
 packets.</p>
 
-
-  <div class='pre p1 fill-light mt0'>downlink</div>
+    <div class='pre p1 fill-light mt0'>downlink</div>
   
     <p>
       Type:
@@ -409,6 +411,8 @@ packets.</p>
   
   
   
+  
+
   
 
   
@@ -445,8 +449,7 @@ packets.</p>
 
   <p>Whether the LoRa radio is switched on.</p>
 
-
-  <div class='pre p1 fill-light mt0'>active</div>
+    <div class='pre p1 fill-light mt0'>active</div>
   
     <p>
       Type:
@@ -460,6 +463,8 @@ packets.</p>
   
   
   
+  
+
   
 
   
@@ -498,8 +503,7 @@ packets.</p>
 <a href="#lora-commslog_info">log_info</a> and
 <a href="#lora-commslog_error">log_error</a>.</p>
 
-
-  <div class='pre p1 fill-light mt0'>start_logging(options: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>)</div>
+    <div class='pre p1 fill-light mt0'>start_logging(options: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>)</div>
   
   
 
@@ -543,6 +547,8 @@ packets.</p>
   
 
   
+
+  
 </section>
 
       </div>
@@ -564,8 +570,7 @@ packets.</p>
 <p>A <a href="#lora-commseventlogging_stop">logging_stop</a> event is emitted
 when logging stops.</p>
 
-
-  <div class='pre p1 fill-light mt0'>stop_logging()</div>
+    <div class='pre p1 fill-light mt0'>stop_logging()</div>
   
   
 
@@ -574,6 +579,8 @@ when logging stops.</p>
   
   
   
+  
+
   
 
   
@@ -610,8 +617,7 @@ when logging stops.</p>
 
   <p>Readable stream containing diagnostic messages.</p>
 
-
-  <div class='pre p1 fill-light mt0'>log_info</div>
+    <div class='pre p1 fill-light mt0'>log_info</div>
   
     <p>
       Type:
@@ -625,6 +631,8 @@ when logging stops.</p>
   
   
   
+  
+
   
 
   
@@ -661,8 +669,7 @@ when logging stops.</p>
 
   <p>Readable stream containing diagnostic messages.</p>
 
-
-  <div class='pre p1 fill-light mt0'>log_error</div>
+    <div class='pre p1 fill-light mt0'>log_error</div>
   
     <p>
       Type:
@@ -676,6 +683,8 @@ when logging stops.</p>
   
   
   
+  
+
   
 
   
@@ -712,8 +721,7 @@ when logging stops.</p>
 
   <p>Whether diagnostic logging is enabled.</p>
 
-
-  <div class='pre p1 fill-light mt0'>logging_active</div>
+    <div class='pre p1 fill-light mt0'>logging_active</div>
   
     <p>
       Type:
@@ -744,12 +752,16 @@ when logging stops.</p>
   
 
   
+
+  
 </section>
 
       </div>
     </div>
   
 </div>
+
+  
 
   
 
@@ -773,8 +785,7 @@ when logging stops.</p>
 
   <p>Stop event. Emitted when the radio stops.</p>
 
-
-  <div class='pre p1 fill-light mt0'>stop</div>
+    <div class='pre p1 fill-light mt0'>stop</div>
   
   
 
@@ -783,6 +794,8 @@ when logging stops.</p>
   
   
   
+  
+
   
 
   
@@ -819,8 +832,7 @@ when logging stops.</p>
 
   <p>Logging stop event. Emitted when logging stops.</p>
 
-
-  <div class='pre p1 fill-light mt0'>logging_stop</div>
+    <div class='pre p1 fill-light mt0'>logging_stop</div>
   
   
 
@@ -829,6 +841,8 @@ when logging stops.</p>
   
   
   
+  
+
   
 
   
@@ -865,8 +879,7 @@ when logging stops.</p>
 
   <p>Error event.</p>
 
-
-  <div class='pre p1 fill-light mt0'>error</div>
+    <div class='pre p1 fill-light mt0'>error</div>
   
   
 
@@ -891,6 +904,8 @@ when logging stops.</p>
         </div>
       
     </div>
+  
+
   
 
   
