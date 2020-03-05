@@ -16,6 +16,9 @@ sections 3-6 of https://raw.githubusercontent.com/davedoesdev/packet_forwarder_s
 
 You can use Anthony Kirby's excellent https://github.com/anthonykirby/lora-packet[packet decoder and encoder] to help parse and construct packet data.
 
+**For a higher-level LoRa library, with support for over-the-air-activation,
+try https://github.com/davedoesdev/lorano[lorano].**
+
 == Example
 
 This program works in conjunction with a link:test/node_lora_comms_test.ino[corresponding Arduino sketch] (tested on a http://support.sodaq.com/sodaq-one/explorer/[SODAQ Explorer]).
