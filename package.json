@@ -1,7 +1,7 @@
 {
   "name": "lora-comms",
   "description": "Read and write packets on a LoRa gateway",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "homepage": "https://github.com/davedoesdev/node-lora-comms",
   "author": {
     "name": "David Halls",
