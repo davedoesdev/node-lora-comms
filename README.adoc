@@ -23,10 +23,10 @@ try https://github.com/davedoesdev/lorano[lorano].**
 
 This program works in conjunction with a link:test/node_lora_comms_test.ino[corresponding Arduino sketch] (tested on a http://support.sodaq.com/sodaq-one/explorer/[SODAQ Explorer]).
 
-It reads 12 byte packets from the LoRa radio, leaves the first 6 bytes
-unchanged and randomizes the randomizes the last 6 bytes. It then sends the
-packet back to the radio. The Explorer does the same but randomizes the first
-6 byes it receives, leaving the last 6 bytes unchanged.
+It reads 12-byte packets from the LoRa radio, leaves the first 6 bytes unchanged
+and randomizes the last 6 bytes. It then sends the packet back to the radio.
+The Explorer does the same but randomizes the first 6 byes it receives, leaving
+the last 6 bytes unchanged.
 
 Each side then checks whether it gets back the bytes it randomized in the
 previous packet it sent.
