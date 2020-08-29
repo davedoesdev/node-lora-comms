@@ -1,5 +1,7 @@
 "use strict";
 
+const test_cmd = './node_modules/.bin/mocha --timeout 30000 --bail';
+
 module.exports = function (grunt)
 {
     grunt.initConfig(
@@ -13,6 +15,11 @@ module.exports = function (grunt)
                 cmd: 'node-gyp rebuild --debug'
             },
 
+            test: {
+                cmd: test_cmd,
+                stdio: 'inherit'
+            },
+
             cover_build: {
                 cmd: 'node-gyp rebuild --debug --coverage=true'
             },
@@ -22,7 +29,7 @@ module.exports = function (grunt)
             },
 
             cover: {
-                cmd: "./node_modules/.bin/nyc -x Gruntfile.js -x 'test/**' ./node_modules/.bin/grunt test"
+                cmd: `./node_modules/.bin/nyc --x 'test/**' ${test_cmd}`
             },
 
             cover_lcov: {
@@ -30,7 +37,7 @@ module.exports = function (grunt)
             },
 
             cover_report: {
-                cmd: 'genhtml --rc lcov_branch_coverage=1 --demangle-cpp -o coverage/lcov-report coverage/lcov2.info'
+                cmd: 'genhtml --rc lcov_branch_coverage=1 --demangle-cpp -o coverage/lcov-report coverage/lcov_final.info'
             },
 
             cover_check: {
@@ -58,24 +65,16 @@ module.exports = function (grunt)
                 'test/**/*.js',
                 'example.js'
             ]
-        },
-
-        mochaTest: {
-            src: 'test/test.js',
-            options: {
-                timeout: 30 * 1000
-            }
         }
     });
 
     grunt.loadNpmTasks('grunt-exec');
     grunt.loadNpmTasks('grunt-eslint');
-    grunt.loadNpmTasks('grunt-mocha-test');
 
     grunt.registerTask('build', 'exec:build');
     grunt.registerTask('rebuild', 'exec:rebuild');
     grunt.registerTask('lint', 'eslint');
-    grunt.registerTask('test', 'mochaTest');
+    grunt.registerTask('test', 'exec:test');
     grunt.registerTask('coverage', ['exec:cover_build',
                                     'exec:cover_init',
                                     'exec:cover',
