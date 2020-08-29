@@ -146,7 +146,6 @@ protected:
         Napi::Env env = Env();
         Callback().MakeCallback(
             Receiver().Value(),
-            std::initializer_list<napi_value>
             {
                 result < 0 ? ErrnoError(env, errnum).Value() : env.Null(),
                 Napi::Number::New(env, result)
