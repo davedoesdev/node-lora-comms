@@ -4,7 +4,7 @@
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>LCOV - lcov2.info - lib/lora-comms.js</title>
+  <title>LCOV - lcov_final.info - lib/lora-comms.js</title>
   <link rel="stylesheet" type="text/css" href="../gcov.css">
 </head>
 
@@ -28,7 +28,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test:</td>
-            <td class="headerValue">lcov2.info</td>
+            <td class="headerValue">lcov_final.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntry">105</td>
@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2020-03-05 21:05:29</td>
+            <td class="headerValue">2020-08-29 21:18:06</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">27</td>
@@ -70,369 +70,369 @@
 <pre class="sourceHeading">           Branch data     Line data    Source code</pre>
 <pre class="source">
 <a name="1"><span class="lineNum">       1 </span>                :            : /**</a>
-<span class="lineNum">       2 </span>                :            :  * Module for reading and writing LoRa packets.
-<span class="lineNum">       3 </span>                :            :  * @module lora-comms
-<span class="lineNum">       4 </span>                :            :  * @extends events.EventEmitter
-<span class="lineNum">       5 </span>                :            :  */
-<span class="lineNum">       6 </span>                :            : &quot;use strict&quot;;
-<span class="lineNum">       7 </span>                :            : 
-<span class="lineNum">       8 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 : process.env.UV_THREADPOOL_SIZE = (process.env.UV_THREADPOOL_SIZE || 4) + 5;</span>
-<span class="lineNum">       9 </span>                :            : 
-<span class="lineNum">      10 </span>                :<span class="lineCov">          1 : const stream = require('stream'),</span>
-<span class="lineNum">      11 </span>                :<span class="lineCov">          1 :           path = require('path'),</span>
-<span class="lineNum">      12 </span>                :<span class="lineCov">          1 :       EventEmitter = require('events').EventEmitter,</span>
-<span class="lineNum">      13 </span>                :<span class="lineCov">          1 :       LoRaComms = require('bindings')('lora_comms').LoRaComms;</span>
-<span class="lineNum">      14 </span>                :            : 
-<span class="lineNum">      15 </span>                :<span class="lineCov">          1 : LoRaComms.set_gw_send_hwm(LoRaComms.uplink, -1);</span>
-<span class="lineNum">      16 </span>                :<span class="lineCov">          1 : LoRaComms.set_gw_send_timeout(LoRaComms.uplink, -1, -1);</span>
-<span class="lineNum">      17 </span>                :<span class="lineCov">          1 : LoRaComms.set_gw_recv_timeout(LoRaComms.uplink, -1, -1);</span>
-<span class="lineNum">      18 </span>                :            : 
-<span class="lineNum">      19 </span>                :<span class="lineCov">          1 : LoRaComms.set_gw_send_hwm(LoRaComms.downlink, -1);</span>
-<span class="lineNum">      20 </span>                :<span class="lineCov">          1 : LoRaComms.set_gw_send_timeout(LoRaComms.downlink, -1, -1);</span>
-<span class="lineNum">      21 </span>                :<span class="lineCov">          1 : LoRaComms.set_gw_recv_timeout(LoRaComms.downlink, -1, -1);</span>
-<span class="lineNum">      22 </span>                :            : 
-<span class="lineNum">      23 </span>                :<span class="lineCov">          1 : LoRaComms.set_log_max_msg_size(1024);</span>
-<span class="lineNum">      24 </span>                :<span class="lineCov">          1 : LoRaComms.set_log_write_hwm(-1);</span>
-<span class="lineNum">      25 </span>                :<span class="lineCov">          1 : LoRaComms.set_log_write_timeout(-1, -1);</span>
-<span class="lineNum">      26 </span>                :            : 
+<a name="2"><span class="lineNum">       2 </span>                :            :  * Module for reading and writing LoRa packets.</a>
+<a name="3"><span class="lineNum">       3 </span>                :            :  * @module lora-comms</a>
+<a name="4"><span class="lineNum">       4 </span>                :            :  * @extends events.EventEmitter</a>
+<a name="5"><span class="lineNum">       5 </span>                :            :  */</a>
+<a name="6"><span class="lineNum">       6 </span>                :            : &quot;use strict&quot;;</a>
+<a name="7"><span class="lineNum">       7 </span>                :            : </a>
+<a name="8"><span class="lineNum">       8 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 : process.env.UV_THREADPOOL_SIZE = (process.env.UV_THREADPOOL_SIZE || 4) + 5;</span></a>
+<a name="9"><span class="lineNum">       9 </span>                :            : </a>
+<a name="10"><span class="lineNum">      10 </span>                :<span class="lineCov">          1 : const stream = require('stream'),</span></a>
+<a name="11"><span class="lineNum">      11 </span>                :<span class="lineCov">          1 :       path = require('path'),</span></a>
+<a name="12"><span class="lineNum">      12 </span>                :<span class="lineCov">          1 :       EventEmitter = require('events').EventEmitter,</span></a>
+<a name="13"><span class="lineNum">      13 </span>                :<span class="lineCov">          1 :       LoRaComms = require('bindings')('lora_comms').LoRaComms;</span></a>
+<a name="14"><span class="lineNum">      14 </span>                :            : </a>
+<a name="15"><span class="lineNum">      15 </span>                :<span class="lineCov">          1 : LoRaComms.set_gw_send_hwm(LoRaComms.uplink, -1);</span></a>
+<a name="16"><span class="lineNum">      16 </span>                :<span class="lineCov">          1 : LoRaComms.set_gw_send_timeout(LoRaComms.uplink, -1, -1);</span></a>
+<a name="17"><span class="lineNum">      17 </span>                :<span class="lineCov">          1 : LoRaComms.set_gw_recv_timeout(LoRaComms.uplink, -1, -1);</span></a>
+<a name="18"><span class="lineNum">      18 </span>                :            : </a>
+<a name="19"><span class="lineNum">      19 </span>                :<span class="lineCov">          1 : LoRaComms.set_gw_send_hwm(LoRaComms.downlink, -1);</span></a>
+<a name="20"><span class="lineNum">      20 </span>                :<span class="lineCov">          1 : LoRaComms.set_gw_send_timeout(LoRaComms.downlink, -1, -1);</span></a>
+<a name="21"><span class="lineNum">      21 </span>                :<span class="lineCov">          1 : LoRaComms.set_gw_recv_timeout(LoRaComms.downlink, -1, -1);</span></a>
+<a name="22"><span class="lineNum">      22 </span>                :            : </a>
+<a name="23"><span class="lineNum">      23 </span>                :<span class="lineCov">          1 : LoRaComms.set_log_max_msg_size(1024);</span></a>
+<a name="24"><span class="lineNum">      24 </span>                :<span class="lineCov">          1 : LoRaComms.set_log_write_hwm(-1);</span></a>
+<a name="25"><span class="lineNum">      25 </span>                :<span class="lineCov">          1 : LoRaComms.set_log_write_timeout(-1, -1);</span></a>
+<a name="26"><span class="lineNum">      26 </span>                :            : </a>
 <a name="27"><span class="lineNum">      27 </span>                :            : class LinkDuplex extends stream.Duplex</a>
-<span class="lineNum">      28 </span>                :            : {
-<span class="lineNum">      29 </span>                :            :     constructor(link, options)
-<span class="lineNum">      30 </span>                :            :     {
-<span class="lineNum">      31 </span>                :<span class="lineCov">         22 :         super(options);</span>
-<span class="lineNum">      32 </span>                :<span class="lineCov">         22 :         this._link = link;</span>
-<span class="lineNum">      33 </span>                :<span class="lineCov">         22 :         this._reading = false;</span>
+<a name="28"><span class="lineNum">      28 </span>                :            : {</a>
+<a name="29"><span class="lineNum">      29 </span>                :            :     constructor(link, options)</a>
+<a name="30"><span class="lineNum">      30 </span>                :            :     {</a>
+<a name="31"><span class="lineNum">      31 </span>                :<span class="lineCov">         22 :         super(options);</span></a>
+<a name="32"><span class="lineNum">      32 </span>                :<span class="lineCov">         22 :         this._link = link;</span></a>
+<a name="33"><span class="lineNum">      33 </span>                :<span class="lineCov">         22 :         this._reading = false;</span></a>
 <a name="34"><span class="lineNum">      34 </span>                :            :     }</a>
-<span class="lineNum">      35 </span>                :            : 
+<a name="35"><span class="lineNum">      35 </span>                :            : </a>
 <a name="36"><span class="lineNum">      36 </span>                :            :     _write(data, encoding, cb)</a>
-<span class="lineNum">      37 </span>                :            :     {
-<span class="lineNum">      38 </span>                :<span class="lineCov">         20 :         LoRaComms.send_to(this._link, data, -1, -1, -1, (err, r) =&gt;</span>
-<span class="lineNum">      39 </span>                :            :         {
-<span class="lineNum">      40 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 18 times"> + </span>]:<span class="lineCov">         20 :             if (err)</span>
-<span class="lineNum">      41 </span>                :            :             {
-<span class="lineNum">      42 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :                 if (err.errno === LoRaComms.EBADF)</span>
-<span class="lineNum">      43 </span>                :            :                 {
-<span class="lineNum">      44 </span>                :<span class="lineCov">          1 :                     this.end();</span>
-<span class="lineNum">      45 </span>                :            :                 }
-<span class="lineNum">      46 </span>                :            : 
-<span class="lineNum">      47 </span>                :<span class="lineCov">          2 :                 return cb(err);</span>
-<span class="lineNum">      48 </span>                :            :             }
-<span class="lineNum">      49 </span>                :            : 
-<span class="lineNum">      50 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 17 times"> + </span>]:<span class="lineCov">         18 :             if (r !== data.length)</span>
-<span class="lineNum">      51 </span>                :            :             {
-<span class="lineNum">      52 </span>                :<span class="lineCov">          1 :                 return cb(new Error('not all data was written'));</span>
-<span class="lineNum">      53 </span>                :            :             }
-<span class="lineNum">      54 </span>                :            : 
-<span class="lineNum">      55 </span>                :<span class="lineCov">         17 :             cb();</span>
-<span class="lineNum">      56 </span>                :            :         });
+<a name="37"><span class="lineNum">      37 </span>                :            :     {</a>
+<a name="38"><span class="lineNum">      38 </span>                :<span class="lineCov">         19 :         LoRaComms.send_to(this._link, data, -1, -1, -1, (err, r) =&gt;</span></a>
+<a name="39"><span class="lineNum">      39 </span>                :            :         {</a>
+<a name="40"><span class="lineNum">      40 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 17 times"> + </span>]:<span class="lineCov">         19 :             if (err)</span></a>
+<a name="41"><span class="lineNum">      41 </span>                :            :             {</a>
+<a name="42"><span class="lineNum">      42 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :                 if (err.errno === LoRaComms.EBADF)</span></a>
+<a name="43"><span class="lineNum">      43 </span>                :            :                 {</a>
+<a name="44"><span class="lineNum">      44 </span>                :<span class="lineCov">          1 :                     this.end();</span></a>
+<a name="45"><span class="lineNum">      45 </span>                :            :                 }</a>
+<a name="46"><span class="lineNum">      46 </span>                :            : </a>
+<a name="47"><span class="lineNum">      47 </span>                :<span class="lineCov">          2 :                 return cb(err);</span></a>
+<a name="48"><span class="lineNum">      48 </span>                :            :             }</a>
+<a name="49"><span class="lineNum">      49 </span>                :            : </a>
+<a name="50"><span class="lineNum">      50 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>]:<span class="lineCov">         17 :             if (r !== data.length)</span></a>
+<a name="51"><span class="lineNum">      51 </span>                :            :             {</a>
+<a name="52"><span class="lineNum">      52 </span>                :<span class="lineCov">          1 :                 return cb(new Error('not all data was written'));</span></a>
+<a name="53"><span class="lineNum">      53 </span>                :            :             }</a>
+<a name="54"><span class="lineNum">      54 </span>                :            : </a>
+<a name="55"><span class="lineNum">      55 </span>                :<span class="lineCov">         16 :             cb();</span></a>
+<a name="56"><span class="lineNum">      56 </span>                :            :         });</a>
 <a name="57"><span class="lineNum">      57 </span>                :            :     }</a>
-<span class="lineNum">      58 </span>                :            : 
-<span class="lineNum">      59 </span>                :            :     _read()
-<span class="lineNum">      60 </span>                :            :     {
-<span class="lineNum">      61 </span>        [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchCov" title="Branch 1 was taken 22 times"> + </span>]:<span class="lineCov">         38 :         if (this._reading) { return; }</span>
-<span class="lineNum">      62 </span>                :<span class="lineCov">         22 :         this._reading = true;</span>
+<a name="58"><span class="lineNum">      58 </span>                :            : </a>
+<a name="59"><span class="lineNum">      59 </span>                :            :     _read()</a>
+<a name="60"><span class="lineNum">      60 </span>                :            :     {</a>
+<a name="61"><span class="lineNum">      61 </span>        [<span class="branchCov" title="Branch 0 was taken 15 times"> + </span><span class="branchCov" title="Branch 1 was taken 21 times"> + </span>]:<span class="lineCov">         36 :         if (this._reading) { return; }</span></a>
+<a name="62"><span class="lineNum">      62 </span>                :<span class="lineCov">         21 :         this._reading = true;</span></a>
 <a name="63"><span class="lineNum">      63 </span>                :            : </a>
-<span class="lineNum">      64 </span>                :<span class="lineCov">         22 :         let buf = Buffer.alloc(LoRaComms.recv_from_buflen);</span>
-<span class="lineNum">      65 </span>                :<span class="lineCov">         22 :         LoRaComms.recv_from(this._link, buf, -1, -1, (err, r) =&gt;</span>
-<span class="lineNum">      66 </span>                :            :         {
-<span class="lineNum">      67 </span>                :<span class="lineCov">         22 :             this._reading = false;</span>
-<span class="lineNum">      68 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 17 times"> + </span>]:<span class="lineCov">         22 :             if (err)</span>
-<span class="lineNum">      69 </span>                :            :             {
-<span class="lineNum">      70 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          5 :                 if (err.errno === LoRaComms.EBADF)</span>
-<span class="lineNum">      71 </span>                :            :                 {
-<span class="lineNum">      72 </span>                :<span class="lineCov">          4 :                     return this.push(null);</span>
+<a name="64"><span class="lineNum">      64 </span>                :<span class="lineCov">         21 :         let buf = Buffer.alloc(LoRaComms.recv_from_buflen);</span></a>
+<a name="65"><span class="lineNum">      65 </span>                :<span class="lineCov">         21 :         LoRaComms.recv_from(this._link, buf, -1, -1, (err, r) =&gt;</span></a>
+<a name="66"><span class="lineNum">      66 </span>                :            :         {</a>
+<a name="67"><span class="lineNum">      67 </span>                :<span class="lineCov">         21 :             this._reading = false;</span></a>
+<a name="68"><span class="lineNum">      68 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>]:<span class="lineCov">         21 :             if (err)</span></a>
+<a name="69"><span class="lineNum">      69 </span>                :            :             {</a>
+<a name="70"><span class="lineNum">      70 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          5 :                 if (err.errno === LoRaComms.EBADF)</span></a>
+<a name="71"><span class="lineNum">      71 </span>                :            :                 {</a>
+<a name="72"><span class="lineNum">      72 </span>                :<span class="lineCov">          4 :                     return this.push(null);</span></a>
 <a name="73"><span class="lineNum">      73 </span>                :            :                 }</a>
-<span class="lineNum">      74 </span>                :            : 
-<span class="lineNum">      75 </span>                :<span class="lineCov">          1 :                 return process.nextTick(() =&gt; this.emit('error', err));</span>
-<span class="lineNum">      76 </span>                :            :             }
-<span class="lineNum">      77 </span>                :            : 
-<a name="78"><span class="lineNum">      78 </span>        [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         17 :             if (this.push(buf.slice(0, r)))</span></a>
-<span class="lineNum">      79 </span>                :            :             {
-<span class="lineNum">      80 </span>                :<span class="lineCov">         16 :                 process.nextTick(() =&gt; this._read());</span>
-<span class="lineNum">      81 </span>                :            :             }
-<span class="lineNum">      82 </span>                :            :         });
-<span class="lineNum">      83 </span>                :            :     }
-<span class="lineNum">      84 </span>                :            : }
-<span class="lineNum">      85 </span>                :            : 
+<a name="74"><span class="lineNum">      74 </span>                :            : </a>
+<a name="75"><span class="lineNum">      75 </span>                :<span class="lineCov">          1 :                 return process.nextTick(() =&gt; this.emit('error', err));</span></a>
+<a name="76"><span class="lineNum">      76 </span>                :            :             }</a>
+<a name="77"><span class="lineNum">      77 </span>                :            : </a>
+<a name="78"><span class="lineNum">      78 </span>        [<span class="branchCov" title="Branch 0 was taken 15 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         16 :             if (this.push(buf.slice(0, r)))</span></a>
+<a name="79"><span class="lineNum">      79 </span>                :            :             {</a>
+<a name="80"><span class="lineNum">      80 </span>                :<span class="lineCov">         15 :                 process.nextTick(() =&gt; this._read());</span></a>
+<a name="81"><span class="lineNum">      81 </span>                :            :             }</a>
+<a name="82"><span class="lineNum">      82 </span>                :            :         });</a>
+<a name="83"><span class="lineNum">      83 </span>                :            :     }</a>
+<a name="84"><span class="lineNum">      84 </span>                :            : }</a>
+<a name="85"><span class="lineNum">      85 </span>                :            : </a>
 <a name="86"><span class="lineNum">      86 </span>                :            : class LogReadable extends stream.Readable</a>
-<span class="lineNum">      87 </span>                :            : {
-<span class="lineNum">      88 </span>                :            :     constructor(get_log_message, options)
-<span class="lineNum">      89 </span>                :            :     {
-<span class="lineNum">      90 </span>                :<span class="lineCov">         32 :         super(options);</span>
-<span class="lineNum">      91 </span>                :<span class="lineCov">         32 :         this._get_log_message = get_log_message;</span>
+<a name="87"><span class="lineNum">      87 </span>                :            : {</a>
+<a name="88"><span class="lineNum">      88 </span>                :            :     constructor(get_log_message, options)</a>
+<a name="89"><span class="lineNum">      89 </span>                :            :     {</a>
+<a name="90"><span class="lineNum">      90 </span>                :<span class="lineCov">         32 :         super(options);</span></a>
+<a name="91"><span class="lineNum">      91 </span>                :<span class="lineCov">         32 :         this._get_log_message = get_log_message;</span></a>
 <a name="92"><span class="lineNum">      92 </span>                :            :     }</a>
-<span class="lineNum">      93 </span>                :            : 
-<span class="lineNum">      94 </span>                :            :     _read()
+<a name="93"><span class="lineNum">      93 </span>                :            : </a>
+<a name="94"><span class="lineNum">      94 </span>                :            :     _read()</a>
 <a name="95"><span class="lineNum">      95 </span>                :            :     {</a>
-<span class="lineNum">      96 </span>                :<span class="lineCov">        814 :         let buf = Buffer.alloc(LoRaComms.get_log_max_msg_size());</span>
-<span class="lineNum">      97 </span>                :<span class="lineCov">        814 :         this._get_log_message(buf, -1, -1, (err, r) =&gt;</span>
-<span class="lineNum">      98 </span>                :            :         {
-<span class="lineNum">      99 </span>        [<span class="branchCov" title="Branch 0 was taken 31 times"> + </span><span class="branchCov" title="Branch 1 was taken 783 times"> + </span>]:<span class="lineCov">        814 :             if (err)</span>
-<span class="lineNum">     100 </span>                :            :             {
-<span class="lineNum">     101 </span>        [<span class="branchCov" title="Branch 0 was taken 30 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         31 :                 if (err.errno === LoRaComms.EBADF)</span>
-<span class="lineNum">     102 </span>                :            :                 {
-<span class="lineNum">     103 </span>                :<span class="lineCov">         30 :                     return this.push(null);</span>
+<a name="96"><span class="lineNum">      96 </span>                :<span class="lineCov">        813 :         let buf = Buffer.alloc(LoRaComms.get_log_max_msg_size());</span></a>
+<a name="97"><span class="lineNum">      97 </span>                :<span class="lineCov">        813 :         this._get_log_message(buf, -1, -1, (err, r) =&gt;</span></a>
+<a name="98"><span class="lineNum">      98 </span>                :            :         {</a>
+<a name="99"><span class="lineNum">      99 </span>        [<span class="branchCov" title="Branch 0 was taken 31 times"> + </span><span class="branchCov" title="Branch 1 was taken 782 times"> + </span>]:<span class="lineCov">        813 :             if (err)</span></a>
+<a name="100"><span class="lineNum">     100 </span>                :            :             {</a>
+<a name="101"><span class="lineNum">     101 </span>        [<span class="branchCov" title="Branch 0 was taken 30 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         31 :                 if (err.errno === LoRaComms.EBADF)</span></a>
+<a name="102"><span class="lineNum">     102 </span>                :            :                 {</a>
+<a name="103"><span class="lineNum">     103 </span>                :<span class="lineCov">         30 :                     return this.push(null);</span></a>
 <a name="104"><span class="lineNum">     104 </span>                :            :                 }</a>
-<span class="lineNum">     105 </span>                :            : 
-<span class="lineNum">     106 </span>                :<span class="lineCov">          1 :                 return process.nextTick(() =&gt; this.emit('error', err));</span>
-<span class="lineNum">     107 </span>                :            :             }
-<span class="lineNum">     108 </span>                :            : 
-<a name="109"><span class="lineNum">     109 </span>        [<span class="branchCov" title="Branch 0 was taken 668 times"> + </span><span class="branchCov" title="Branch 1 was taken 115 times"> + </span>]:<span class="lineCov">        783 :             if (this.push(buf.slice(0, r)))</span></a>
-<span class="lineNum">     110 </span>                :            :             {
-<span class="lineNum">     111 </span>                :<span class="lineCov">        668 :                 process.nextTick(() =&gt; this.read());</span>
-<span class="lineNum">     112 </span>                :            :             }
-<span class="lineNum">     113 </span>                :            :         });
-<span class="lineNum">     114 </span>                :            :     }
-<span class="lineNum">     115 </span>                :            : }
-<span class="lineNum">     116 </span>                :            : 
+<a name="105"><span class="lineNum">     105 </span>                :            : </a>
+<a name="106"><span class="lineNum">     106 </span>                :<span class="lineCov">          1 :                 return process.nextTick(() =&gt; this.emit('error', err));</span></a>
+<a name="107"><span class="lineNum">     107 </span>                :            :             }</a>
+<a name="108"><span class="lineNum">     108 </span>                :            : </a>
+<a name="109"><span class="lineNum">     109 </span>        [<span class="branchCov" title="Branch 0 was taken 667 times"> + </span><span class="branchCov" title="Branch 1 was taken 115 times"> + </span>]:<span class="lineCov">        782 :             if (this.push(buf.slice(0, r)))</span></a>
+<a name="110"><span class="lineNum">     110 </span>                :            :             {</a>
+<a name="111"><span class="lineNum">     111 </span>                :<span class="lineCov">        667 :                 process.nextTick(() =&gt; this.read());</span></a>
+<a name="112"><span class="lineNum">     112 </span>                :            :             }</a>
+<a name="113"><span class="lineNum">     113 </span>                :            :         });</a>
+<a name="114"><span class="lineNum">     114 </span>                :            :     }</a>
+<a name="115"><span class="lineNum">     115 </span>                :            : }</a>
+<a name="116"><span class="lineNum">     116 </span>                :            : </a>
 <a name="117"><span class="lineNum">     117 </span>                :            : class lora_comms extends EventEmitter</a>
-<span class="lineNum">     118 </span>                :            : {
-<span class="lineNum">     119 </span>                :            :     get LoRaComms()
-<span class="lineNum">     120 </span>                :            :     {
-<span class="lineNum">     121 </span>                :<span class="lineCov">         18 :         return LoRaComms;</span>
+<a name="118"><span class="lineNum">     118 </span>                :            : {</a>
+<a name="119"><span class="lineNum">     119 </span>                :            :     get LoRaComms()</a>
+<a name="120"><span class="lineNum">     120 </span>                :            :     {</a>
+<a name="121"><span class="lineNum">     121 </span>                :<span class="lineCov">         18 :         return LoRaComms;</span></a>
 <a name="122"><span class="lineNum">     122 </span>                :            :     }</a>
-<span class="lineNum">     123 </span>                :            : 
-<span class="lineNum">     124 </span>                :            :     constructor()
-<span class="lineNum">     125 </span>                :            :     {
-<span class="lineNum">     126 </span>                :<span class="lineCov">          1 :         super();</span>
-<span class="lineNum">     127 </span>                :<span class="lineCov">          1 :         this._uplink = null;</span>
-<span class="lineNum">     128 </span>                :<span class="lineCov">          1 :         this._downlink = null;</span>
-<span class="lineNum">     129 </span>                :<span class="lineCov">          1 :         this._active = false;</span>
-<span class="lineNum">     130 </span>                :<span class="lineCov">          1 :         this._needs_reset = false;</span>
-<span class="lineNum">     131 </span>                :<span class="lineCov">          1 :         this._log_info = null;</span>
-<span class="lineNum">     132 </span>                :<span class="lineCov">          1 :         this._log_error = null;</span>
-<span class="lineNum">     133 </span>                :<span class="lineCov">          1 :         this._logging_active = false;</span>
-<span class="lineNum">     134 </span>                :<span class="lineCov">          1 :         this._logging_needs_reset = false;</span>
-<span class="lineNum">     135 </span>                :            :     }
-<span class="lineNum">     136 </span>                :            : 
-<span class="lineNum">     137 </span>                :            :     /**
-<span class="lineNum">     138 </span>                :            :      * Start the LoRa radio, receiving and transmitting packets to
-<span class="lineNum">     139 </span>                :            :      * {@link lora-commsuplink|uplink} and {@link lora-commsdownlink|downlink}.
-<span class="lineNum">     140 </span>                :            :      *
-<span class="lineNum">     141 </span>                :            :      * @memberof lora-comms
-<span class="lineNum">     142 </span>                :            :      * @param {Object} options - Configuration options. This is passed to stream.Duplex when constructing {@link lora-commsuplink|uplink} and {@link lora-commsdownlink|downlink} and supports the following additional option:
+<a name="123"><span class="lineNum">     123 </span>                :            : </a>
+<a name="124"><span class="lineNum">     124 </span>                :            :     constructor()</a>
+<a name="125"><span class="lineNum">     125 </span>                :            :     {</a>
+<a name="126"><span class="lineNum">     126 </span>                :<span class="lineCov">          1 :         super();</span></a>
+<a name="127"><span class="lineNum">     127 </span>                :<span class="lineCov">          1 :         this._uplink = null;</span></a>
+<a name="128"><span class="lineNum">     128 </span>                :<span class="lineCov">          1 :         this._downlink = null;</span></a>
+<a name="129"><span class="lineNum">     129 </span>                :<span class="lineCov">          1 :         this._active = false;</span></a>
+<a name="130"><span class="lineNum">     130 </span>                :<span class="lineCov">          1 :         this._needs_reset = false;</span></a>
+<a name="131"><span class="lineNum">     131 </span>                :<span class="lineCov">          1 :         this._log_info = null;</span></a>
+<a name="132"><span class="lineNum">     132 </span>                :<span class="lineCov">          1 :         this._log_error = null;</span></a>
+<a name="133"><span class="lineNum">     133 </span>                :<span class="lineCov">          1 :         this._logging_active = false;</span></a>
+<a name="134"><span class="lineNum">     134 </span>                :<span class="lineCov">          1 :         this._logging_needs_reset = false;</span></a>
+<a name="135"><span class="lineNum">     135 </span>                :            :     }</a>
+<a name="136"><span class="lineNum">     136 </span>                :            : </a>
+<a name="137"><span class="lineNum">     137 </span>                :            :     /**</a>
+<a name="138"><span class="lineNum">     138 </span>                :            :      * Start the LoRa radio, receiving and transmitting packets to</a>
+<a name="139"><span class="lineNum">     139 </span>                :            :      * {@link lora-commsuplink|uplink} and {@link lora-commsdownlink|downlink}.</a>
+<a name="140"><span class="lineNum">     140 </span>                :            :      *</a>
+<a name="141"><span class="lineNum">     141 </span>                :            :      * @memberof lora-comms</a>
+<a name="142"><span class="lineNum">     142 </span>                :            :      * @param {Object} options - Configuration options. This is passed to stream.Duplex when constructing {@link lora-commsuplink|uplink} and {@link lora-commsdownlink|downlink} and supports the following additional option:</a>
 <a name="143"><span class="lineNum">     143 </span>                :            :      * @param {string} [options.cfg_dir] - Path to directory containing LoRa radio configuration files. Defaults to `packet_forwarder_shared/lora_pkt_fwd` in the module directory.</a>
-<span class="lineNum">     144 </span>                :            :      */
-<span class="lineNum">     145 </span>                :            :     start(options)
-<span class="lineNum">     146 </span>                :            :     {
-<span class="lineNum">     147 </span>                :<span class="lineCov">         17 :                 options = Object.assign(</span>
-<span class="lineNum">     148 </span>                :            :                 {
-<span class="lineNum">     149 </span>                :            :                         cfg_dir: path.join(__dirname, '..',
-<span class="lineNum">     150 </span>                :            :                                'packet_forwarder_shared', 'lora_pkt_fwd')
-<span class="lineNum">     151 </span>                :            :                 }, options);
-<span class="lineNum">     152 </span>                :            : 
-<span class="lineNum">     153 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>]:<span class="lineCov">         17 :         if (this._active)</span>
-<span class="lineNum">     154 </span>                :            :         {
-<span class="lineNum">     155 </span>                :<span class="lineCov">          1 :             return;</span>
-<span class="lineNum">     156 </span>                :            :         }
-<span class="lineNum">     157 </span>                :            : 
-<span class="lineNum">     158 </span>        [<span class="branchCov" title="Branch 0 was taken 15 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         16 :         if (this._needs_reset)</span>
-<span class="lineNum">     159 </span>                :            :         {
-<span class="lineNum">     160 </span>                :<span class="lineCov">         15 :             LoRaComms.reset();</span>
-<span class="lineNum">     161 </span>                :            :         }
-<span class="lineNum">     162 </span>                :            : 
-<span class="lineNum">     163 </span>                :<span class="lineCov">         16 :         this._active = true;</span>
-<span class="lineNum">     164 </span>                :<span class="lineCov">         16 :         this._needs_reset = true;</span>
-<span class="lineNum">     165 </span>                :            : 
-<span class="lineNum">     166 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 11 times"> + </span>]:<span class="lineCov">         16 :         if (options.no_streams)</span>
-<span class="lineNum">     167 </span>                :            :         {
-<span class="lineNum">     168 </span>                :<span class="lineCov">          5 :             this._uplink = null;</span>
-<span class="lineNum">     169 </span>                :<span class="lineCov">          5 :             this._downlink = null;</span>
-<span class="lineNum">     170 </span>                :            :         }
-<span class="lineNum">     171 </span>                :            :         else
-<span class="lineNum">     172 </span>                :            :         {
-<span class="lineNum">     173 </span>                :<span class="lineCov">         11 :             this._uplink = new LinkDuplex(LoRaComms.uplink, options);</span>
-<span class="lineNum">     174 </span>                :<span class="lineCov">         11 :             this._downlink = new LinkDuplex(LoRaComms.downlink, options);</span>
+<a name="144"><span class="lineNum">     144 </span>                :            :      */</a>
+<a name="145"><span class="lineNum">     145 </span>                :            :     start(options)</a>
+<a name="146"><span class="lineNum">     146 </span>                :            :     {</a>
+<a name="147"><span class="lineNum">     147 </span>                :<span class="lineCov">         17 :                 options = Object.assign(</span></a>
+<a name="148"><span class="lineNum">     148 </span>                :            :                 {</a>
+<a name="149"><span class="lineNum">     149 </span>                :            :                         cfg_dir: path.join(__dirname, '..',</a>
+<a name="150"><span class="lineNum">     150 </span>                :            :                                'packet_forwarder_shared', 'lora_pkt_fwd')</a>
+<a name="151"><span class="lineNum">     151 </span>                :            :                 }, options);</a>
+<a name="152"><span class="lineNum">     152 </span>                :            : </a>
+<a name="153"><span class="lineNum">     153 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>]:<span class="lineCov">         17 :         if (this._active)</span></a>
+<a name="154"><span class="lineNum">     154 </span>                :            :         {</a>
+<a name="155"><span class="lineNum">     155 </span>                :<span class="lineCov">          1 :             return;</span></a>
+<a name="156"><span class="lineNum">     156 </span>                :            :         }</a>
+<a name="157"><span class="lineNum">     157 </span>                :            : </a>
+<a name="158"><span class="lineNum">     158 </span>        [<span class="branchCov" title="Branch 0 was taken 15 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         16 :         if (this._needs_reset)</span></a>
+<a name="159"><span class="lineNum">     159 </span>                :            :         {</a>
+<a name="160"><span class="lineNum">     160 </span>                :<span class="lineCov">         15 :             LoRaComms.reset();</span></a>
+<a name="161"><span class="lineNum">     161 </span>                :            :         }</a>
+<a name="162"><span class="lineNum">     162 </span>                :            : </a>
+<a name="163"><span class="lineNum">     163 </span>                :<span class="lineCov">         16 :         this._active = true;</span></a>
+<a name="164"><span class="lineNum">     164 </span>                :<span class="lineCov">         16 :         this._needs_reset = true;</span></a>
+<a name="165"><span class="lineNum">     165 </span>                :            : </a>
+<a name="166"><span class="lineNum">     166 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 11 times"> + </span>]:<span class="lineCov">         16 :         if (options.no_streams)</span></a>
+<a name="167"><span class="lineNum">     167 </span>                :            :         {</a>
+<a name="168"><span class="lineNum">     168 </span>                :<span class="lineCov">          5 :             this._uplink = null;</span></a>
+<a name="169"><span class="lineNum">     169 </span>                :<span class="lineCov">          5 :             this._downlink = null;</span></a>
+<a name="170"><span class="lineNum">     170 </span>                :            :         }</a>
+<a name="171"><span class="lineNum">     171 </span>                :            :         else</a>
+<a name="172"><span class="lineNum">     172 </span>                :            :         {</a>
+<a name="173"><span class="lineNum">     173 </span>                :<span class="lineCov">         11 :             this._uplink = new LinkDuplex(LoRaComms.uplink, options);</span></a>
+<a name="174"><span class="lineNum">     174 </span>                :<span class="lineCov">         11 :             this._downlink = new LinkDuplex(LoRaComms.downlink, options);</span></a>
 <a name="175"><span class="lineNum">     175 </span>                :            :         }</a>
-<span class="lineNum">     176 </span>                :            : 
-<span class="lineNum">     177 </span>                :<span class="lineCov">         16 :         LoRaComms.start(options.cfg_dir, err =&gt; process.nextTick(() =&gt;</span>
-<span class="lineNum">     178 </span>                :            :         {
-<span class="lineNum">     179 </span>                :<span class="lineCov">         16 :             this._active = false;</span>
-<span class="lineNum">     180 </span>                :            : 
-<span class="lineNum">     181 </span>        [<span class="branchCov" title="Branch 0 was taken 11 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">         16 :             if (this._uplink)</span>
-<span class="lineNum">     182 </span>                :            :             {
-<span class="lineNum">     183 </span>                :<span class="lineCov">         11 :                 this._uplink.push(null);</span>
-<span class="lineNum">     184 </span>                :<span class="lineCov">         11 :                 this._uplink.end();</span>
-<span class="lineNum">     185 </span>                :            :             }
-<span class="lineNum">     186 </span>                :            : 
-<span class="lineNum">     187 </span>        [<span class="branchCov" title="Branch 0 was taken 11 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">         16 :             if (this._downlink)</span>
-<span class="lineNum">     188 </span>                :            :             {
-<span class="lineNum">     189 </span>                :<span class="lineCov">         11 :                 this._downlink.push(null);</span>
-<span class="lineNum">     190 </span>                :<span class="lineCov">         11 :                 this._downlink.end();</span>
-<span class="lineNum">     191 </span>                :            :             }
-<span class="lineNum">     192 </span>                :            : 
-<span class="lineNum">     193 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         16 :             if (err)</span>
-<span class="lineNum">     194 </span>                :            :             {
-<span class="lineNum">     195 </span>                :<span class="lineCov">          1 :                 this.emit('error', err);</span>
-<span class="lineNum">     196 </span>                :            :             }
-<span class="lineNum">     197 </span>                :            : 
-<span class="lineNum">     198 </span>                :<span class="lineCov">         16 :             this.emit('stop');</span>
-<span class="lineNum">     199 </span>                :            :         }));
-<span class="lineNum">     200 </span>                :            :     }
-<span class="lineNum">     201 </span>                :            : 
-<span class="lineNum">     202 </span>                :            :         /**
-<span class="lineNum">     203 </span>                :            :      * Stop the LoRa radio.
-<span class="lineNum">     204 </span>                :            :          *
-<span class="lineNum">     205 </span>                :            :          * A {@link lora-comms.event:stop|stop} event is emitted when the radio
-<span class="lineNum">     206 </span>                :            :      * stops.
-<span class="lineNum">     207 </span>                :            :      *
+<a name="176"><span class="lineNum">     176 </span>                :            : </a>
+<a name="177"><span class="lineNum">     177 </span>                :<span class="lineCov">         16 :         LoRaComms.start(options.cfg_dir, err =&gt; process.nextTick(() =&gt;</span></a>
+<a name="178"><span class="lineNum">     178 </span>                :            :         {</a>
+<a name="179"><span class="lineNum">     179 </span>                :<span class="lineCov">         16 :             this._active = false;</span></a>
+<a name="180"><span class="lineNum">     180 </span>                :            : </a>
+<a name="181"><span class="lineNum">     181 </span>        [<span class="branchCov" title="Branch 0 was taken 11 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">         16 :             if (this._uplink)</span></a>
+<a name="182"><span class="lineNum">     182 </span>                :            :             {</a>
+<a name="183"><span class="lineNum">     183 </span>                :<span class="lineCov">         11 :                 this._uplink.push(null);</span></a>
+<a name="184"><span class="lineNum">     184 </span>                :<span class="lineCov">         11 :                 this._uplink.end();</span></a>
+<a name="185"><span class="lineNum">     185 </span>                :            :             }</a>
+<a name="186"><span class="lineNum">     186 </span>                :            : </a>
+<a name="187"><span class="lineNum">     187 </span>        [<span class="branchCov" title="Branch 0 was taken 11 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">         16 :             if (this._downlink)</span></a>
+<a name="188"><span class="lineNum">     188 </span>                :            :             {</a>
+<a name="189"><span class="lineNum">     189 </span>                :<span class="lineCov">         11 :                 this._downlink.push(null);</span></a>
+<a name="190"><span class="lineNum">     190 </span>                :<span class="lineCov">         11 :                 this._downlink.end();</span></a>
+<a name="191"><span class="lineNum">     191 </span>                :            :             }</a>
+<a name="192"><span class="lineNum">     192 </span>                :            : </a>
+<a name="193"><span class="lineNum">     193 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         16 :             if (err)</span></a>
+<a name="194"><span class="lineNum">     194 </span>                :            :             {</a>
+<a name="195"><span class="lineNum">     195 </span>                :<span class="lineCov">          1 :                 this.emit('error', err);</span></a>
+<a name="196"><span class="lineNum">     196 </span>                :            :             }</a>
+<a name="197"><span class="lineNum">     197 </span>                :            : </a>
+<a name="198"><span class="lineNum">     198 </span>                :<span class="lineCov">         16 :             this.emit('stop');</span></a>
+<a name="199"><span class="lineNum">     199 </span>                :            :         }));</a>
+<a name="200"><span class="lineNum">     200 </span>                :            :     }</a>
+<a name="201"><span class="lineNum">     201 </span>                :            : </a>
+<a name="202"><span class="lineNum">     202 </span>                :            :         /**</a>
+<a name="203"><span class="lineNum">     203 </span>                :            :      * Stop the LoRa radio.</a>
+<a name="204"><span class="lineNum">     204 </span>                :            :          *</a>
+<a name="205"><span class="lineNum">     205 </span>                :            :          * A {@link lora-comms.event:stop|stop} event is emitted when the radio</a>
+<a name="206"><span class="lineNum">     206 </span>                :            :      * stops.</a>
+<a name="207"><span class="lineNum">     207 </span>                :            :      *</a>
 <a name="208"><span class="lineNum">     208 </span>                :            :      * @memberof lora-comms</a>
-<span class="lineNum">     209 </span>                :            :          */
-<span class="lineNum">     210 </span>                :            :     stop()
-<span class="lineNum">     211 </span>                :            :     {
-<span class="lineNum">     212 </span>                :<span class="lineCov">         15 :         LoRaComms.stop();</span>
-<span class="lineNum">     213 </span>                :            :     }
-<span class="lineNum">     214 </span>                :            : 
-<span class="lineNum">     215 </span>                :            :     /**
-<span class="lineNum">     216 </span>                :            :      * Duplex stream for receiving packets from the LoRa radio.
-<span class="lineNum">     217 </span>                :            :      * Read `PUSH_DATA` packets. Write `PUSH_ACK` packets.
-<span class="lineNum">     218 </span>                :            :      *
-<span class="lineNum">     219 </span>                :            :      * @memberof lora-comms
+<a name="209"><span class="lineNum">     209 </span>                :            :          */</a>
+<a name="210"><span class="lineNum">     210 </span>                :            :     stop()</a>
+<a name="211"><span class="lineNum">     211 </span>                :            :     {</a>
+<a name="212"><span class="lineNum">     212 </span>                :<span class="lineCov">         15 :         LoRaComms.stop();</span></a>
+<a name="213"><span class="lineNum">     213 </span>                :            :     }</a>
+<a name="214"><span class="lineNum">     214 </span>                :            : </a>
+<a name="215"><span class="lineNum">     215 </span>                :            :     /**</a>
+<a name="216"><span class="lineNum">     216 </span>                :            :      * Duplex stream for receiving packets from the LoRa radio.</a>
+<a name="217"><span class="lineNum">     217 </span>                :            :      * Read `PUSH_DATA` packets. Write `PUSH_ACK` packets.</a>
+<a name="218"><span class="lineNum">     218 </span>                :            :      *</a>
+<a name="219"><span class="lineNum">     219 </span>                :            :      * @memberof lora-comms</a>
 <a name="220"><span class="lineNum">     220 </span>                :            :      * @type {?stream.Duplex}</a>
-<span class="lineNum">     221 </span>                :            :      */
-<span class="lineNum">     222 </span>                :            :     get uplink()
-<span class="lineNum">     223 </span>                :            :     {
-<span class="lineNum">     224 </span>                :<span class="lineCov">         21 :         return this._uplink;</span>
-<span class="lineNum">     225 </span>                :            :     }
-<span class="lineNum">     226 </span>                :            : 
-<span class="lineNum">     227 </span>                :            :     /**
-<span class="lineNum">     228 </span>                :            :      * Duplex stream for transmitting packets using the LoRa radio.
-<span class="lineNum">     229 </span>                :            :      * Read `PULL_DATA` and `TX_ACK` packets. Write `PULL_ACK` and `PULL_RESP`
-<span class="lineNum">     230 </span>                :            :      * packets.
-<span class="lineNum">     231 </span>                :            :      *
-<span class="lineNum">     232 </span>                :            :      * @memberof lora-comms
+<a name="221"><span class="lineNum">     221 </span>                :            :      */</a>
+<a name="222"><span class="lineNum">     222 </span>                :            :     get uplink()</a>
+<a name="223"><span class="lineNum">     223 </span>                :            :     {</a>
+<a name="224"><span class="lineNum">     224 </span>                :<span class="lineCov">         21 :         return this._uplink;</span></a>
+<a name="225"><span class="lineNum">     225 </span>                :            :     }</a>
+<a name="226"><span class="lineNum">     226 </span>                :            : </a>
+<a name="227"><span class="lineNum">     227 </span>                :            :     /**</a>
+<a name="228"><span class="lineNum">     228 </span>                :            :      * Duplex stream for transmitting packets using the LoRa radio.</a>
+<a name="229"><span class="lineNum">     229 </span>                :            :      * Read `PULL_DATA` and `TX_ACK` packets. Write `PULL_ACK` and `PULL_RESP`</a>
+<a name="230"><span class="lineNum">     230 </span>                :            :      * packets.</a>
+<a name="231"><span class="lineNum">     231 </span>                :            :      *</a>
+<a name="232"><span class="lineNum">     232 </span>                :            :      * @memberof lora-comms</a>
 <a name="233"><span class="lineNum">     233 </span>                :            :      * @type {?stream.Duplex}</a>
-<span class="lineNum">     234 </span>                :            :      */
-<span class="lineNum">     235 </span>                :            :     get downlink()
-<span class="lineNum">     236 </span>                :            :     {
-<span class="lineNum">     237 </span>                :<span class="lineCov">         18 :         return this._downlink;</span>
-<span class="lineNum">     238 </span>                :            :     }
-<span class="lineNum">     239 </span>                :            : 
-<span class="lineNum">     240 </span>                :            :     /**
-<span class="lineNum">     241 </span>                :            :      * Whether the LoRa radio is switched on.
-<span class="lineNum">     242 </span>                :            :      *
-<span class="lineNum">     243 </span>                :            :      * @memberof lora-comms
+<a name="234"><span class="lineNum">     234 </span>                :            :      */</a>
+<a name="235"><span class="lineNum">     235 </span>                :            :     get downlink()</a>
+<a name="236"><span class="lineNum">     236 </span>                :            :     {</a>
+<a name="237"><span class="lineNum">     237 </span>                :<span class="lineCov">         18 :         return this._downlink;</span></a>
+<a name="238"><span class="lineNum">     238 </span>                :            :     }</a>
+<a name="239"><span class="lineNum">     239 </span>                :            : </a>
+<a name="240"><span class="lineNum">     240 </span>                :            :     /**</a>
+<a name="241"><span class="lineNum">     241 </span>                :            :      * Whether the LoRa radio is switched on.</a>
+<a name="242"><span class="lineNum">     242 </span>                :            :      *</a>
+<a name="243"><span class="lineNum">     243 </span>                :            :      * @memberof lora-comms</a>
 <a name="244"><span class="lineNum">     244 </span>                :            :      * @type {boolean}</a>
-<span class="lineNum">     245 </span>                :            :      */
-<span class="lineNum">     246 </span>                :            :     get active()
-<span class="lineNum">     247 </span>                :            :     {
-<span class="lineNum">     248 </span>                :<span class="lineCov">         16 :         return this._active;</span>
-<span class="lineNum">     249 </span>                :            :     }
-<span class="lineNum">     250 </span>                :            : 
-<span class="lineNum">     251 </span>                :            :         /**
-<span class="lineNum">     252 </span>                :            :      * Start logging diagnostic messages to
-<span class="lineNum">     253 </span>                :            :      * {@link lora-commslog_info|log_info} and
-<span class="lineNum">     254 </span>                :            :      * {@link lora-commslog_error|log_error}.
-<span class="lineNum">     255 </span>                :            :      *
-<span class="lineNum">     256 </span>                :            :      * @memberof lora-comms
+<a name="245"><span class="lineNum">     245 </span>                :            :      */</a>
+<a name="246"><span class="lineNum">     246 </span>                :            :     get active()</a>
+<a name="247"><span class="lineNum">     247 </span>                :            :     {</a>
+<a name="248"><span class="lineNum">     248 </span>                :<span class="lineCov">         16 :         return this._active;</span></a>
+<a name="249"><span class="lineNum">     249 </span>                :            :     }</a>
+<a name="250"><span class="lineNum">     250 </span>                :            : </a>
+<a name="251"><span class="lineNum">     251 </span>                :            :         /**</a>
+<a name="252"><span class="lineNum">     252 </span>                :            :      * Start logging diagnostic messages to</a>
+<a name="253"><span class="lineNum">     253 </span>                :            :      * {@link lora-commslog_info|log_info} and</a>
+<a name="254"><span class="lineNum">     254 </span>                :            :      * {@link lora-commslog_error|log_error}.</a>
+<a name="255"><span class="lineNum">     255 </span>                :            :      *</a>
+<a name="256"><span class="lineNum">     256 </span>                :            :      * @memberof lora-comms</a>
 <a name="257"><span class="lineNum">     257 </span>                :            :      * @param {Object} options - Configuration options. This is passed to stream.Readable when constructing {@link lora-commslog_info|log_info} and {@link lora-commslog_error|log_error}.</a>
-<span class="lineNum">     258 </span>                :            :      */
-<span class="lineNum">     259 </span>                :            :     start_logging(options)
-<span class="lineNum">     260 </span>                :            :     {
-<span class="lineNum">     261 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>]:<span class="lineCov">         17 :         if (this._logging_active)</span>
-<span class="lineNum">     262 </span>                :            :         {
-<span class="lineNum">     263 </span>                :<span class="lineCov">          1 :             return;</span>
-<span class="lineNum">     264 </span>                :            :         }
-<span class="lineNum">     265 </span>                :            : 
-<span class="lineNum">     266 </span>        [<span class="branchCov" title="Branch 0 was taken 15 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         16 :         if (this._logging_needs_reset)</span>
-<span class="lineNum">     267 </span>                :            :         {
-<span class="lineNum">     268 </span>                :<span class="lineCov">         15 :             LoRaComms.reset_logging();</span>
-<span class="lineNum">     269 </span>                :            :         }
-<span class="lineNum">     270 </span>                :            : 
-<span class="lineNum">     271 </span>                :<span class="lineCov">         16 :         this._logging_active = true;</span>
-<span class="lineNum">     272 </span>                :<span class="lineCov">         16 :         this._logging_needs_reset = true;</span>
-<span class="lineNum">     273 </span>                :            : 
-<span class="lineNum">     274 </span>                :<span class="lineCov">         16 :         this._log_info = new LogReadable(LoRaComms.get_log_info_message,</span>
-<span class="lineNum">     275 </span>                :            :                                          options);
-<span class="lineNum">     276 </span>                :<span class="lineCov">         16 :         this._log_error = new LogReadable(LoRaComms.get_log_error_message,</span>
+<a name="258"><span class="lineNum">     258 </span>                :            :      */</a>
+<a name="259"><span class="lineNum">     259 </span>                :            :     start_logging(options)</a>
+<a name="260"><span class="lineNum">     260 </span>                :            :     {</a>
+<a name="261"><span class="lineNum">     261 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>]:<span class="lineCov">         17 :         if (this._logging_active)</span></a>
+<a name="262"><span class="lineNum">     262 </span>                :            :         {</a>
+<a name="263"><span class="lineNum">     263 </span>                :<span class="lineCov">          1 :             return;</span></a>
+<a name="264"><span class="lineNum">     264 </span>                :            :         }</a>
+<a name="265"><span class="lineNum">     265 </span>                :            : </a>
+<a name="266"><span class="lineNum">     266 </span>        [<span class="branchCov" title="Branch 0 was taken 15 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         16 :         if (this._logging_needs_reset)</span></a>
+<a name="267"><span class="lineNum">     267 </span>                :            :         {</a>
+<a name="268"><span class="lineNum">     268 </span>                :<span class="lineCov">         15 :             LoRaComms.reset_logging();</span></a>
+<a name="269"><span class="lineNum">     269 </span>                :            :         }</a>
+<a name="270"><span class="lineNum">     270 </span>                :            : </a>
+<a name="271"><span class="lineNum">     271 </span>                :<span class="lineCov">         16 :         this._logging_active = true;</span></a>
+<a name="272"><span class="lineNum">     272 </span>                :<span class="lineCov">         16 :         this._logging_needs_reset = true;</span></a>
+<a name="273"><span class="lineNum">     273 </span>                :            : </a>
+<a name="274"><span class="lineNum">     274 </span>                :<span class="lineCov">         16 :         this._log_info = new LogReadable(LoRaComms.get_log_info_message,</span></a>
+<a name="275"><span class="lineNum">     275 </span>                :            :                                          options);</a>
+<a name="276"><span class="lineNum">     276 </span>                :<span class="lineCov">         16 :         this._log_error = new LogReadable(LoRaComms.get_log_error_message,</span></a>
 <a name="277"><span class="lineNum">     277 </span>                :            :                                           options);</a>
-<span class="lineNum">     278 </span>                :            : 
-<span class="lineNum">     279 </span>                :<span class="lineCov">         16 :         let end_count = 0, check = () =&gt;</span>
-<span class="lineNum">     280 </span>                :            :         {
-<span class="lineNum">     281 </span>        [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>]:<span class="lineCov">         32 :             if (++end_count === 2)</span>
-<span class="lineNum">     282 </span>                :            :             {
-<span class="lineNum">     283 </span>                :<span class="lineCov">         16 :                 this._logging_active = false;</span>
-<span class="lineNum">     284 </span>                :<span class="lineCov">         16 :                 this.emit('logging_stop');</span>
-<span class="lineNum">     285 </span>                :            :             }
-<span class="lineNum">     286 </span>                :            :         };
-<span class="lineNum">     287 </span>                :<span class="lineCov">         16 :         this._log_info.on('end', check);</span>
-<span class="lineNum">     288 </span>                :<span class="lineCov">         16 :         this._log_error.on('end', check);</span>
-<span class="lineNum">     289 </span>                :            : 
-<span class="lineNum">     290 </span>                :<span class="lineCov">         16 :         LoRaComms.start_logging();</span>
-<span class="lineNum">     291 </span>                :            :     }
-<span class="lineNum">     292 </span>                :            : 
-<span class="lineNum">     293 </span>                :            :         /**
-<span class="lineNum">     294 </span>                :            :      * Stop logging diagnostic messages.
-<span class="lineNum">     295 </span>                :            :      *
-<span class="lineNum">     296 </span>                :            :          * A {@link lora-comms.event:logging_stop|logging_stop} event is emitted
-<span class="lineNum">     297 </span>                :            :      * when logging stops.
-<span class="lineNum">     298 </span>                :            :      *
+<a name="278"><span class="lineNum">     278 </span>                :            : </a>
+<a name="279"><span class="lineNum">     279 </span>                :<span class="lineCov">         16 :         let end_count = 0, check = () =&gt;</span></a>
+<a name="280"><span class="lineNum">     280 </span>                :            :         {</a>
+<a name="281"><span class="lineNum">     281 </span>        [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>]:<span class="lineCov">         32 :             if (++end_count === 2)</span></a>
+<a name="282"><span class="lineNum">     282 </span>                :            :             {</a>
+<a name="283"><span class="lineNum">     283 </span>                :<span class="lineCov">         16 :                 this._logging_active = false;</span></a>
+<a name="284"><span class="lineNum">     284 </span>                :<span class="lineCov">         16 :                 this.emit('logging_stop');</span></a>
+<a name="285"><span class="lineNum">     285 </span>                :            :             }</a>
+<a name="286"><span class="lineNum">     286 </span>                :            :         };</a>
+<a name="287"><span class="lineNum">     287 </span>                :<span class="lineCov">         16 :         this._log_info.on('end', check);</span></a>
+<a name="288"><span class="lineNum">     288 </span>                :<span class="lineCov">         16 :         this._log_error.on('end', check);</span></a>
+<a name="289"><span class="lineNum">     289 </span>                :            : </a>
+<a name="290"><span class="lineNum">     290 </span>                :<span class="lineCov">         16 :         LoRaComms.start_logging();</span></a>
+<a name="291"><span class="lineNum">     291 </span>                :            :     }</a>
+<a name="292"><span class="lineNum">     292 </span>                :            : </a>
+<a name="293"><span class="lineNum">     293 </span>                :            :         /**</a>
+<a name="294"><span class="lineNum">     294 </span>                :            :      * Stop logging diagnostic messages.</a>
+<a name="295"><span class="lineNum">     295 </span>                :            :      *</a>
+<a name="296"><span class="lineNum">     296 </span>                :            :          * A {@link lora-comms.event:logging_stop|logging_stop} event is emitted</a>
+<a name="297"><span class="lineNum">     297 </span>                :            :      * when logging stops.</a>
+<a name="298"><span class="lineNum">     298 </span>                :            :      *</a>
 <a name="299"><span class="lineNum">     299 </span>                :            :      * @memberof lora-comms</a>
-<span class="lineNum">     300 </span>                :            :      */
-<span class="lineNum">     301 </span>                :            :     stop_logging()
-<span class="lineNum">     302 </span>                :            :     {
-<span class="lineNum">     303 </span>                :<span class="lineCov">          1 :         LoRaComms.stop_logging();</span>
-<span class="lineNum">     304 </span>                :<span class="lineCov">          1 :         this._log_info.push(null);</span>
-<span class="lineNum">     305 </span>                :<span class="lineCov">          1 :         this._log_error.push(null);</span>
-<span class="lineNum">     306 </span>                :            :     }
-<span class="lineNum">     307 </span>                :            : 
-<span class="lineNum">     308 </span>                :            :     /**
-<span class="lineNum">     309 </span>                :            :      * Readable stream containing diagnostic messages.
-<span class="lineNum">     310 </span>                :            :      *
-<span class="lineNum">     311 </span>                :            :      * @memberof lora-comms
+<a name="300"><span class="lineNum">     300 </span>                :            :      */</a>
+<a name="301"><span class="lineNum">     301 </span>                :            :     stop_logging()</a>
+<a name="302"><span class="lineNum">     302 </span>                :            :     {</a>
+<a name="303"><span class="lineNum">     303 </span>                :<span class="lineCov">          1 :         LoRaComms.stop_logging();</span></a>
+<a name="304"><span class="lineNum">     304 </span>                :<span class="lineCov">          1 :         this._log_info.push(null);</span></a>
+<a name="305"><span class="lineNum">     305 </span>                :<span class="lineCov">          1 :         this._log_error.push(null);</span></a>
+<a name="306"><span class="lineNum">     306 </span>                :            :     }</a>
+<a name="307"><span class="lineNum">     307 </span>                :            : </a>
+<a name="308"><span class="lineNum">     308 </span>                :            :     /**</a>
+<a name="309"><span class="lineNum">     309 </span>                :            :      * Readable stream containing diagnostic messages.</a>
+<a name="310"><span class="lineNum">     310 </span>                :            :      *</a>
+<a name="311"><span class="lineNum">     311 </span>                :            :      * @memberof lora-comms</a>
 <a name="312"><span class="lineNum">     312 </span>                :            :      * @type {?stream.Readable}</a>
-<span class="lineNum">     313 </span>                :            :      */
-<span class="lineNum">     314 </span>                :            :     get log_info()
-<span class="lineNum">     315 </span>                :            :     {
-<span class="lineNum">     316 </span>                :<span class="lineCov">         21 :         return this._log_info;</span>
-<span class="lineNum">     317 </span>                :            :     }
-<span class="lineNum">     318 </span>                :            : 
-<span class="lineNum">     319 </span>                :            :     /**
-<span class="lineNum">     320 </span>                :            :      * Readable stream containing diagnostic messages.
-<span class="lineNum">     321 </span>                :            :      *
-<span class="lineNum">     322 </span>                :            :      * @memberof lora-comms
+<a name="313"><span class="lineNum">     313 </span>                :            :      */</a>
+<a name="314"><span class="lineNum">     314 </span>                :            :     get log_info()</a>
+<a name="315"><span class="lineNum">     315 </span>                :            :     {</a>
+<a name="316"><span class="lineNum">     316 </span>                :<span class="lineCov">         21 :         return this._log_info;</span></a>
+<a name="317"><span class="lineNum">     317 </span>                :            :     }</a>
+<a name="318"><span class="lineNum">     318 </span>                :            : </a>
+<a name="319"><span class="lineNum">     319 </span>                :            :     /**</a>
+<a name="320"><span class="lineNum">     320 </span>                :            :      * Readable stream containing diagnostic messages.</a>
+<a name="321"><span class="lineNum">     321 </span>                :            :      *</a>
+<a name="322"><span class="lineNum">     322 </span>                :            :      * @memberof lora-comms</a>
 <a name="323"><span class="lineNum">     323 </span>                :            :      * @type {?stream.Readable}</a>
-<span class="lineNum">     324 </span>                :            :      */
-<span class="lineNum">     325 </span>                :            :     get log_error()
-<span class="lineNum">     326 </span>                :            :     {
-<span class="lineNum">     327 </span>                :<span class="lineCov">         16 :         return this._log_error;</span>
-<span class="lineNum">     328 </span>                :            :     }
-<span class="lineNum">     329 </span>                :            : 
-<span class="lineNum">     330 </span>                :            :     /**
-<span class="lineNum">     331 </span>                :            :      * Whether diagnostic logging is enabled.
-<span class="lineNum">     332 </span>                :            :      *
-<span class="lineNum">     333 </span>                :            :      * @memberof lora-comms
+<a name="324"><span class="lineNum">     324 </span>                :            :      */</a>
+<a name="325"><span class="lineNum">     325 </span>                :            :     get log_error()</a>
+<a name="326"><span class="lineNum">     326 </span>                :            :     {</a>
+<a name="327"><span class="lineNum">     327 </span>                :<span class="lineCov">         16 :         return this._log_error;</span></a>
+<a name="328"><span class="lineNum">     328 </span>                :            :     }</a>
+<a name="329"><span class="lineNum">     329 </span>                :            : </a>
+<a name="330"><span class="lineNum">     330 </span>                :            :     /**</a>
+<a name="331"><span class="lineNum">     331 </span>                :            :      * Whether diagnostic logging is enabled.</a>
+<a name="332"><span class="lineNum">     332 </span>                :            :      *</a>
+<a name="333"><span class="lineNum">     333 </span>                :            :      * @memberof lora-comms</a>
 <a name="334"><span class="lineNum">     334 </span>                :            :      * @type {boolean}</a>
-<span class="lineNum">     335 </span>                :            :      */
-<span class="lineNum">     336 </span>                :            :     get logging_active()
-<span class="lineNum">     337 </span>                :            :     {
-<span class="lineNum">     338 </span>                :<span class="lineCov">         16 :         return this._logging_active;</span>
-<span class="lineNum">     339 </span>                :            :     }
-<span class="lineNum">     340 </span>                :            : 
-<span class="lineNum">     341 </span>                :            :     /**
-<span class="lineNum">     342 </span>                :            :      * Stop event. Emitted when the radio stops.
-<span class="lineNum">     343 </span>                :            :      *
-<span class="lineNum">     344 </span>                :            :      * @memberof lora-comms
-<span class="lineNum">     345 </span>                :            :      * @event stop
-<span class="lineNum">     346 </span>                :            :      */
-<span class="lineNum">     347 </span>                :            : 
-<span class="lineNum">     348 </span>                :            :     /**
-<span class="lineNum">     349 </span>                :            :      * Logging stop event. Emitted when logging stops.
-<span class="lineNum">     350 </span>                :            :      *
-<span class="lineNum">     351 </span>                :            :      * @memberof lora-comms
-<span class="lineNum">     352 </span>                :            :      * @event logging_stop
-<span class="lineNum">     353 </span>                :            :      */
-<span class="lineNum">     354 </span>                :            : 
-<span class="lineNum">     355 </span>                :            :     /**
-<span class="lineNum">     356 </span>                :            :      * Error event.
-<span class="lineNum">     357 </span>                :            :      *
-<span class="lineNum">     358 </span>                :            :      * @memberof lora-comms
-<span class="lineNum">     359 </span>                :            :      * @event error
-<span class="lineNum">     360 </span>                :            :      * @param {Object} err - The error which occurred.
-<span class="lineNum">     361 </span>                :            :      */
-<span class="lineNum">     362 </span>                :            : }
-<span class="lineNum">     363 </span>                :            : 
-<span class="lineNum">     364 </span>                :<span class="lineCov">          1 : module.exports = new lora_comms();</span>
+<a name="335"><span class="lineNum">     335 </span>                :            :      */</a>
+<a name="336"><span class="lineNum">     336 </span>                :            :     get logging_active()</a>
+<a name="337"><span class="lineNum">     337 </span>                :            :     {</a>
+<a name="338"><span class="lineNum">     338 </span>                :<span class="lineCov">         16 :         return this._logging_active;</span></a>
+<a name="339"><span class="lineNum">     339 </span>                :            :     }</a>
+<a name="340"><span class="lineNum">     340 </span>                :            : </a>
+<a name="341"><span class="lineNum">     341 </span>                :            :     /**</a>
+<a name="342"><span class="lineNum">     342 </span>                :            :      * Stop event. Emitted when the radio stops.</a>
+<a name="343"><span class="lineNum">     343 </span>                :            :      *</a>
+<a name="344"><span class="lineNum">     344 </span>                :            :      * @memberof lora-comms</a>
+<a name="345"><span class="lineNum">     345 </span>                :            :      * @event stop</a>
+<a name="346"><span class="lineNum">     346 </span>                :            :      */</a>
+<a name="347"><span class="lineNum">     347 </span>                :            : </a>
+<a name="348"><span class="lineNum">     348 </span>                :            :     /**</a>
+<a name="349"><span class="lineNum">     349 </span>                :            :      * Logging stop event. Emitted when logging stops.</a>
+<a name="350"><span class="lineNum">     350 </span>                :            :      *</a>
+<a name="351"><span class="lineNum">     351 </span>                :            :      * @memberof lora-comms</a>
+<a name="352"><span class="lineNum">     352 </span>                :            :      * @event logging_stop</a>
+<a name="353"><span class="lineNum">     353 </span>                :            :      */</a>
+<a name="354"><span class="lineNum">     354 </span>                :            : </a>
+<a name="355"><span class="lineNum">     355 </span>                :            :     /**</a>
+<a name="356"><span class="lineNum">     356 </span>                :            :      * Error event.</a>
+<a name="357"><span class="lineNum">     357 </span>                :            :      *</a>
+<a name="358"><span class="lineNum">     358 </span>                :            :      * @memberof lora-comms</a>
+<a name="359"><span class="lineNum">     359 </span>                :            :      * @event error</a>
+<a name="360"><span class="lineNum">     360 </span>                :            :      * @param {Object} err - The error which occurred.</a>
+<a name="361"><span class="lineNum">     361 </span>                :            :      */</a>
+<a name="362"><span class="lineNum">     362 </span>                :            : }</a>
+<a name="363"><span class="lineNum">     363 </span>                :            : </a>
+<a name="364"><span class="lineNum">     364 </span>                :<span class="lineCov">          1 : module.exports = new lora_comms();</span></a>
 </pre>
       </td>
     </tr>
@@ -441,7 +441,7 @@
 
   <table width="100%" border=0 cellspacing=0 cellpadding=0>
     <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
-    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.14</a></td></tr>
   </table>
   <br>
 

@@ -2,7 +2,7 @@
 set -e
 set -x
 VER_LGS=shared-v0.0.2
-VER_PFS=shared-v3.3.0
+VER_PFS=shared-v3.4.0
 if [ ! -d lora_gateway_shared-$VER_LGS ]; then
     wget -O - https://github.com/davedoesdev/lora_gateway_shared/archive/$VER_LGS.tar.gz | tar -zx
 fi
