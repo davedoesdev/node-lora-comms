@@ -29,7 +29,7 @@ module.exports = function (grunt)
             },
 
             cover: {
-                cmd: `./node_modules/.bin/nyc --x 'test/**' ${test_cmd}`
+                cmd: `./node_modules/.bin/nyc -x 'test/**' ${test_cmd}`
             },
 
             cover_lcov: {
