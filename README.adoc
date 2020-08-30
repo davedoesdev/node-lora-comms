@@ -233,6 +233,7 @@ sleep 5
 echo "0" > /sys/class/gpio/gpio25/value
 sleep 1
 echo "0" > /sys/class/gpio/gpio25/value
+chmod o+rw /dev/spidev0.0
 ----
 
 == Test
