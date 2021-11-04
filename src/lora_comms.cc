@@ -7,10 +7,7 @@
 
 using namespace std::chrono_literals;
 
-// LoRaComms has no instance methods so we never create an instance
-//LCOV_EXCL_START
 class LoRaComms : public Napi::ObjectWrap<LoRaComms>
-//LCOV_EXCL_STOP
 {
 public:
     LoRaComms(const Napi::CallbackInfo& info);
@@ -62,7 +59,11 @@ Napi::Error ErrnoError(const Napi::Env& env, const int errnum)
     Napi::Error err = Napi::Error::New(env, errmsg ? errmsg : std::to_string(errnum));
     err.Set("errno", Napi::Number::New(env, errnum));
     return err;
+// Bug in lcov/gcc: For some reason the closing brace below is uncovered
+// even though the return above is covered.
+//LCOV_EXCL_START
 }
+//LCOV_EXCL_STOP
 
 class StartAsyncWorker : public Napi::AsyncWorker
 {

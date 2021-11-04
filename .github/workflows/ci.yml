@@ -1,0 +1,38 @@
+name: ci
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12, 14, 16]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Reconfigure git to use HTTPS
+        run: git config --global url.https://github.com/.insteadOf ssh://git@github.com/
+
+      - name: Install packages
+        run: npm ci
+
+      - name: Lint
+        run: npx grunt lint
+
+      - name: Coverage
+        run: npm run coverage --simulate
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: coverage/lcov_final.info
