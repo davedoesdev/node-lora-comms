@@ -3,23 +3,15 @@
 const args = process.argv.filter(a => a.startsWith('--')).map(a => ` ${a}`);
 const test_cmd = `npx mocha --timeout 30000 --bail ${args}`;
 const c8 = "npx c8 -x Gruntfile.js -x 'test/**'";
-
-let cover_build_args = '--coverage=true';
-if (process.argv.indexOf('--simulate') >= 0) {
-    cover_build_args += ' --simulate=true';
-}
+const build_args = process.argv.indexOf('--simulate') >= 0 ? '--simulate=true' : '';
 
 module.exports = function (grunt)
 {
     grunt.initConfig(
     {
         exec: {
-            build: {
-                cmd: 'node-gyp build --debug'
-            },
-
             rebuild: {
-                cmd: 'node-gyp rebuild --debug'
+                cmd: `npx node-gyp rebuild --debug ${build_args}`
             },
 
             test: {
@@ -27,12 +19,8 @@ module.exports = function (grunt)
                 stdio: 'inherit'
             },
 
-            simulation_build: {
-                cmd: 'node-gyp rebuild --debug --simulate=true'
-            },
-
             cover_build: {
-                cmd: `node-gyp rebuild --debug ${cover_build_args}`
+                cmd: `npx node-gyp rebuild --debug --coverage=true ${build_args}`
             },
 
             cover_init: {
