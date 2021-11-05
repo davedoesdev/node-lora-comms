@@ -6,9 +6,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    env:
-      UV_THREADPOOL_SIZE: 100
-
     strategy:
       matrix:
         node-version: [12, 14, 16]

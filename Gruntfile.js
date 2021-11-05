@@ -1,7 +1,9 @@
 "use strict";
 
 const args = process.argv.filter(a => a.startsWith('--')).map(a => ` ${a}`);
-const test_cmd = `npx mocha --timeout 30000 --bail ${args}`;
+// note we can't use npx mocha because npx initialises the thread pool
+// before we can set UV_THREADPOOL_SIZE in lib/lora-comms.js
+const test_cmd = `./node_modules/.bin/mocha --timeout 30000 --bail ${args}`;
 const c8 = "npx c8 -x Gruntfile.js -x 'test/**'";
 const build_args = process.argv.indexOf('--simulate') >= 0 ? '--simulate=true' : '';
 
