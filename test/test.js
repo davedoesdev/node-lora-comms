@@ -238,6 +238,7 @@ function stop(cb)
             console.log("STOPCB1");
             return cb();
         }
+        console.log("HERE1");
         if (simulatorErr && (simulatorErr.errno === LoRaComms.EBADF)) {
             console.log("STOPCB2");
             return cb();
