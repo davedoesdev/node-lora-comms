@@ -233,6 +233,7 @@ function stop(cb)
             await simulatorP;
             console.log("WAITED FOR SIMULATORP", new Date());
         }
+        console.log(this.currentTest.title, simulatorErr);
         if ((this.currentTest.title === 'should error when data is too big') &&
             (simulatorErr.message === `expected ${lora_comms.LoRaComms.send_to_buflen} to equal 4`)) {
             console.log("STOPCB1");
