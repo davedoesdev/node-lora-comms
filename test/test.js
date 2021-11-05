@@ -227,11 +227,11 @@ function stop(cb)
     }
 
     lora_comms.once('stop', async () => {
-        console.log("GOT STOP EVENT");
+        console.log("GOT STOP EVENT", new Date());
         if (simulatorP) {
-            console.log("WAITING FOR SIMULATORP");
+            console.log("WAITING FOR SIMULATORP", new Date());
             await simulatorP;
-            console.log("WAITED FOR SIMULATORP");
+            console.log("WAITED FOR SIMULATORP", new Date());
         }
         if ((this.currentTest.title === 'should error when data is too big') &&
             (simulatorErr.message === `expected ${lora_comms.LoRaComms.send_to_buflen} to equal 4`)) {
@@ -246,7 +246,7 @@ function stop(cb)
         console.log("STOPCB3");
         cb(simulatorErr);
     });
-    console.log("WAITING FOR STOP");
+    console.log("WAITING FOR STOP", new Date());
     lora_comms.stop();
 
 }
