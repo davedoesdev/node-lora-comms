@@ -230,11 +230,10 @@ function stop(cb)
         if (simulatorP) {
             await simulatorP;
         }
-        if ((this.currentTest.title === 'should error when data is too big') &&
-            (simulatorErr.message === `expected ${lora_comms.LoRaComms.send_to_buflen} to equal 4`)) {
-            return cb();
-        }
-        if (simulatorErr && (simulatorErr.errno === LoRaComms.EBADF)) {
+        if (simulatorErr &&
+            ((simulatorErr.errno === LoRaComms.EBADF) ||
+             ((this.currentTest.title === 'should error when data is too big') &&
+              (simulatorErr.message === `expected ${lora_comms.LoRaComms.send_to_buflen} to equal 4`)))) {
             return cb();
         }
         cb(simulatorErr);
