@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2021-11-04 23:18:54</td>
+            <td class="headerValue">2021-11-05 21:57:31</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">36</td>
@@ -121,15 +121,15 @@
 <a name="50"><span class="lineNum">      50 </span>                :            : }</a>
 <a name="51"><span class="lineNum">      51 </span>                :            : //LCOV_EXCL_STOP</a>
 <a name="52"><span class="lineNum">      52 </span>                :            : </a>
-<a name="53"><span class="lineNum">      53 </span>                :<span class="lineCov">         56 : Napi::Error ErrnoError(const Napi::Env&amp; env, const int errnum)</span></a>
+<a name="53"><span class="lineNum">      53 </span>                :<span class="lineCov">         57 : Napi::Error ErrnoError(const Napi::Env&amp; env, const int errnum)</span></a>
 <a name="54"><span class="lineNum">      54 </span>                :            : {</a>
-<a name="55"><span class="lineNum">      55 </span>                :<span class="lineCov">         56 :     char buf[1024] = {0};</span></a>
-<a name="56"><span class="lineNum">      56 </span>                :<span class="lineCov">         56 :     auto errmsg = strerror_r(errnum, buf, sizeof(buf));</span></a>
+<a name="55"><span class="lineNum">      55 </span>                :<span class="lineCov">         57 :     char buf[1024] = {0};</span></a>
+<a name="56"><span class="lineNum">      56 </span>                :<span class="lineCov">         57 :     auto errmsg = strerror_r(errnum, buf, sizeof(buf));</span></a>
 <a name="57"><span class="lineNum">      57 </span>                :            :     static_assert(std::is_same&lt;decltype(errmsg), char*&gt;::value,</a>
 <a name="58"><span class="lineNum">      58 </span>                :            :                   &quot;strerror_r must return char*&quot;);</a>
-<a name="59"><span class="lineNum">      59 </span>                :<span class="lineCov">        112 :     Napi::Error err = Napi::Error::New(env, errmsg ? errmsg : std::to_string(errnum));</span></a>
-<a name="60"><span class="lineNum">      60 </span>                :<span class="lineCov">         56 :     err.Set(&quot;errno&quot;, Napi::Number::New(env, errnum));</span></a>
-<a name="61"><span class="lineNum">      61 </span>                :<span class="lineCov">        112 :     return err;</span></a>
+<a name="59"><span class="lineNum">      59 </span>                :<span class="lineCov">        114 :     Napi::Error err = Napi::Error::New(env, errmsg ? errmsg : std::to_string(errnum));</span></a>
+<a name="60"><span class="lineNum">      60 </span>                :<span class="lineCov">         57 :     err.Set(&quot;errno&quot;, Napi::Number::New(env, errnum));</span></a>
+<a name="61"><span class="lineNum">      61 </span>                :<span class="lineCov">        114 :     return err;</span></a>
 <a name="62"><span class="lineNum">      62 </span>                :            : // Bug in lcov/gcc: For some reason the closing brace below is uncovered</a>
 <a name="63"><span class="lineNum">      63 </span>                :            : // even though the return above is covered.</a>
 <a name="64"><span class="lineNum">      64 </span>                :            : //LCOV_EXCL_START</a>
@@ -209,7 +209,7 @@
 <a name="138"><span class="lineNum">     138 </span>                :<span class="lineCov">        111 :         result = Communicate();</span></a>
 <a name="139"><span class="lineNum">     139 </span>                :<span class="lineCov">        111 :         if (result &lt; 0)</span></a>
 <a name="140"><span class="lineNum">     140 </span>                :            :         {</a>
-<a name="141"><span class="lineNum">     141 </span>                :<span class="lineCov">         56 :             errnum = errno;</span></a>
+<a name="141"><span class="lineNum">     141 </span>                :<span class="lineCov">         57 :             errnum = errno;</span></a>
 <a name="142"><span class="lineNum">     142 </span>                :            :         }</a>
 <a name="143"><span class="lineNum">     143 </span>                :<span class="lineCov">        111 :     }</span></a>
 <a name="144"><span class="lineNum">     144 </span>                :            : </a>
@@ -219,7 +219,7 @@
 <a name="148"><span class="lineNum">     148 </span>                :<span class="lineCov">        444 :         Callback().MakeCallback(</span></a>
 <a name="149"><span class="lineNum">     149 </span>                :<span class="lineCov">        111 :             Receiver().Value(),</span></a>
 <a name="150"><span class="lineNum">     150 </span>                :            :             {</a>
-<a name="151"><span class="lineNum">     151 </span>                :<span class="lineCov">        167 :                 result &lt; 0 ? ErrnoError(env, errnum).Value() : env.Null(),</span></a>
+<a name="151"><span class="lineNum">     151 </span>                :<span class="lineCov">        168 :                 result &lt; 0 ? ErrnoError(env, errnum).Value() : env.Null(),</span></a>
 <a name="152"><span class="lineNum">     152 </span>                :<span class="lineCov">        222 :                 Napi::Number::New(env, result)</span></a>
 <a name="153"><span class="lineNum">     153 </span>                :            :             });</a>
 <a name="154"><span class="lineNum">     154 </span>                :<span class="lineCov">        111 :     }</span></a>
