@@ -235,11 +235,14 @@ function stop(cb)
         }
         if ((this.currentTest.title === 'should error when data is too big') &&
             (simulatorErr.message === `expected ${lora_comms.LoRaComms.send_to_buflen} to equal 4`)) {
+            console.log("STOPCB1");
             return cb();
         }
         if (simulatorErr && (simulatorErr.errno === LoRaComms.EBADF)) {
+            console.log("STOPCB2");
             return cb();
         }
+        console.log("STOPCB3");
         cb(simulatorErr);
     });
     console.log("WAITING FOR STOP");
