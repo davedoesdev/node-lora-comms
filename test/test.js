@@ -40,7 +40,7 @@ async function wait_for(link, pkt)
     }
 }
 
-let uplink_out, downlink_out, downlink_in, received_first_pull_data;
+let uplink_out, downlink_out, downlink_in;
 
 function ack(data, _, cb)
 {
@@ -61,14 +61,6 @@ function ack(data, _, cb)
                 await downlink_out.writeAsync(Buffer.concat([
                     data.slice(0, 3),
                     Buffer.from([pkts.PULL_ACK])]));
-
-                process.nextTick(() => downlink_in.stream.read(0));
-
-                if (received_first_pull_data)
-                {
-                    return cb();
-                }
-                received_first_pull_data = false;
             }
         }
 
@@ -274,8 +266,6 @@ describe('echoing device', function ()
     async function echo(options)
     {
         start(options);
-
-        received_first_pull_data = false;
 
         const link_options = Object.assign(
         {

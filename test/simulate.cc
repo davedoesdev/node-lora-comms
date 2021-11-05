@@ -344,7 +344,7 @@ int start(const char *cfg_dir) {
     int r = EXIT_SUCCESS;
 
     try {
-        log(log_info, "Waiting for stop");
+        log(log_info, "Waiting for stop\n");
         while (true) {
             std::unique_lock<std::mutex> lock(stop_mutex);
             if (stop_requested) {
