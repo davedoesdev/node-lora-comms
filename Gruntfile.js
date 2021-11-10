@@ -47,7 +47,10 @@ module.exports = function (grunt)
             },
 
             documentation: {
-                cmd: 'npx documentation build -c documentation.yml -f html -o docs lib/lora-comms.js'
+                cmd: [
+                    'npx documentation build -c documentation.yml -f html -o docs lib/lora-comms.js',
+                    'asciidoc -b docbook -o - README.adoc | pandoc -f docbook -t gfm -o README.md'
+                ].join('&&')
             }
         },
 

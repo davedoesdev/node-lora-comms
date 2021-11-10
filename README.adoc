@@ -263,7 +263,7 @@ on a SODAQ Explorer). Then run:
 grunt coverage
 ----
 
-https://istanbul.js.org/[Istanbul] results are available
+https://github.com/bcoe/c8[c8] results are available
 http://rawgit.davedoesdev.com/davedoesdev/node-lora-comms/master/coverage/lcov-report/index.html[here].
 
 == Licence
