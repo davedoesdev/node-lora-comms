@@ -1,7 +1,7 @@
 {
   "name": "lora-comms",
   "description": "Read and write packets on a LoRa gateway",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage": "https://github.com/davedoesdev/node-lora-comms",
   "author": {
     "name": "David Halls",
@@ -36,13 +36,13 @@
   },
   "devDependencies": {
     "awaitify-stream": "^1.0.2",
-    "c8": "^7.11.3",
+    "c8": "^7.12.0",
     "chai": "^4.3.6",
-    "documentation": "documentationjs/documentation",
+    "documentation": "^14.0.0",
     "grunt": "^1.5.3",
     "grunt-eslint": "^24.0.0",
     "grunt-exec": "^3.0.0",
-    "lora-packet": "^0.8.15",
+    "lora-packet": "^0.8.17",
     "mocha": "^10.0.0",
     "yargs": "^17.5.1"
   }
